@@ -48,20 +48,20 @@ XPEnology 전용 Telegram BOT 프로젝트
     DS Download 모니터가 등록되었습니다 라고 나오면 성공
   
   
-  사용 방법
+# 사용 방법
   
-*/torrentsearch*
+**/torrentsearch**
     - 토렌트 검색
-*/weather*
+**/weather**
     - 동네 날씨 또는 전국 날씨 요약 정보 조회
-*/wol*
+**/wol**
     - Wake On Lan 기능
-*/regiwol*
+**/regiwol**
     - Wake On Lan Device 등록
-*/delwol*
+**/delwol**
     - Wake On Lan Device 삭제
-*/dsdownloadregister*
+**/dsdownloadregister**
     - DS Download 모니터링 Query 등록
-*/help*
+**/help**
     - 도움말
     
