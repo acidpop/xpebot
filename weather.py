@@ -2,11 +2,14 @@
 import urllib
 import BeautifulSoup
 import sqlite3
+import main
 from LogManager import log
 
 
 class weather(object):
     """description of class"""
+    
+    db_path = main.botConfig.GetExecutePath() + "/tgbot.db"
 
     def GetSummaryUrl(self, LocalName):
         if LocalName == u'강원도':
@@ -64,7 +67,7 @@ class weather(object):
             sender.sendMessage(today, reply_markup=hide_keyboard) 
             return
             
-        db = sqlite3.connect("./tgbot.db")
+        db = sqlite3.connect(self.db_path)
         cursor = db.cursor()
         cursor.execute(query)
         rowdata = cursor.fetchall()
