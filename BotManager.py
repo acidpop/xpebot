@@ -87,8 +87,10 @@ class BOTManager(telepot.helper.ChatHandler):
             self.current_mode_handler(command)
             return
 
+        self.cur_mode = ''
+
         if command == '/torrentsearch':
-            log.info("cmd_handle : Torretn Search")
+            log.info("cmd_handle : Torrent Search")
             self.cur_mode = 'torrentsearch'
             self.sender.sendMessage(u'검색 할 Torrent 제목을 입력하세요')
 
@@ -127,7 +129,6 @@ class BOTManager(telepot.helper.ChatHandler):
 
         elif command == '/help':
             log.info("cmd_handle : Help Mode")
-            self.cur_mode = 'help'
             self.SendMarkupMessage(self.helper.HelpText)
 
         elif command == '/dsdownloadregister':

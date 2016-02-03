@@ -47,7 +47,7 @@ if __name__ == "__main__":
     log.info('Telegram BOT Initialize...')
 
     bot = telepot.DelegatorBot(TOKEN, [
-        (per_chat_id(), create_open(BotManager.BOTManager, timeout=120)),
+        (per_chat_id(), create_open(BotManager.BOTManager, timeout=30)),
     ])
 
     log.info('Telegram BOT Init OK')
