@@ -122,9 +122,11 @@ class wol(object):
             # TABLE : IDX[0], MAC[1], DEVNAME[2], BROADCAST_ADDR[3], REG_DATE[4]
             for row in rowdata:
                 keyboard_title = row[2] + " | " + row[1]
-                outList.append(keyboard_title)
+                templist = []
+                templist.append(keyboard_title)
+                outList.append(templist)
 
-            wol_keyboard = {'keyboard': [outList], 'resize_keyboard': True}
+            wol_keyboard = {'keyboard': outList, 'resize_keyboard': True}
             sender.sendMessage(sendMsg, reply_markup=wol_keyboard)
 
         cursor.close()
