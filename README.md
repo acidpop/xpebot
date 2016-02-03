@@ -48,7 +48,8 @@
  
 
 9. xpebot 을 다음 명령어로 실행 한다.
-'''
+
+```
   ./bot.sh start
  
   종료 
@@ -56,9 +57,8 @@
   
   실행 여부 확인
   .bot.sh chk
-'''
+```
 
-  
 10. Telegram 으로 생성한 BOT 에서 다음 메시지를 전송한다.
 
     **/dsdownloadregister**
