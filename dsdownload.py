@@ -1,0 +1,228 @@
+#-*- coding: utf-8 -*-
+import main
+import psycopg2
+import CommonUtil
+import telepot
+
+from LogManager import log
+
+
+# psycopg2 document page : http://initd.org/psycopg/docs/usage.html#passing-parameters-to-sql-queries
+
+class dsdownload(object):
+    """description of class"""
+
+    #global conn
+    #global curs
+
+    TOKEN = main.botConfig.GetBotToken()
+    dsm_id = main.botConfig.GetDsmId()
+    chat_id = main.botConfig.GetChatId()
+
+    conn = None
+    curs = None
+
+    bot = telepot.Bot(TOKEN)
+    
+
+    def db_connect(self, host='localhost', dbname='download', user='postgres', password=''):
+        #global curs
+        #global conn
+        conn_string = "host='%s' dbname='%s' user='%s' password='%s'" % (host, dbname, user, password)
+
+        try:
+            self.conn = psycopg2.connect(conn_string)
+            self.conn.autocommit = True
+        except Exception as e:
+            log.error("dsdownload db_connect error")
+            log.error(e)
+            return False
+
+        self.curs = self.conn.cursor()
+
+        return True
+
+    def db_query(self, query):
+        
+        ret = True
+        if self.curs == None:
+            ret = self.db_connect()
+
+        if ret == True:
+            self.curs.execute(query)
+            result = self.curs.fetchall()
+            return True, result
+
+        return False, ''
+
+    def db_exec(self, query):
+        ret = True
+        if self.curs == None:
+            ret = self.db_connect()
+
+        if ret == True:
+            try:
+                self.curs.execute(query)
+                log.info('db_exec complete')
+                return True
+            except:
+                log.info('db_exec except')
+                return False
+
+        return False
+
+    def dsdownload_register_monitor_query(self, sender):
+        sender.sendMessage('DS Download 모니터 등록을 시도 합니다')
+        query = """CREATE TABLE btdownload_event(
+    task_id           integer   NOT NULL,
+    username          character varying(128),
+    filename          text,
+    status            integer,
+    total_size        bigint,
+    isread            integer,
+    create_time       date
+);
+CREATE OR REPLACE FUNCTION process_btdownload_event() RETURNS TRIGGER AS $btdownload_event$
+    DECLARE
+        rec_count integer;
+    BEGIN
+        IF (TG_OP = 'INSERT') THEN
+            RETURN NEW;
+        ELSIF (TG_OP = 'UPDATE') THEN
+            IF (NEW.status = 2 AND NEW.total_size > 0 AND NEW.current_size > 0) THEN
+                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 2;
+                IF ( rec_count = 0 ) THEN
+                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
+                END IF;
+            ELSIF (NEW.status = 5 ) THEN
+                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 5;
+                IF ( rec_count = 0 ) THEN
+                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
+                END IF;
+            ELSIF (NEW.status = 118) THEN
+                UPDATE download_queue SET status = 5, extra_info = '' WHERE task_id = NEW.task_id;
+                DELETE FROM task_plugin WHERE task_id = NEW.task_id;
+                DELETE FROM thumbnail WHERE task_id = NEW.task_id;
+            END IF;
+            RETURN NEW;
+        ELSIF (TG_OP = 'DELETE') THEN
+                DELETE FROM btdownload_event WHERE task_id = OLD.task_id;
+            RETURN OLD;
+        END IF;
+        RETURN NULL;
+    END;
+$btdownload_event$ LANGUAGE plpgsql;
+ 
+CREATE TRIGGER btdownload_event
+AFTER INSERT OR UPDATE OR DELETE ON download_queue
+FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
+
+        conn_string = "host='localhost' dbname='download' user='postgres' password=''"
+
+        try:
+            monitor_conn = psycopg2.connect(conn_string)
+            monitor_conn.autocommit = True
+            monitor_curs = monitor_conn.cursor()
+
+            log.debug('dsdownload monitor query execute')
+            monitor_curs.execute(query)
+            log.debug('dsdownload monitor query execute success')
+
+            monitor_curs.close()
+            monitor_conn.close()
+
+            sender.sendMessage('DS Download 모니터가 등록 되었습니다')
+        except psycopg2.IntegrityError as err:
+            if err.pgcode != '23505':
+                log.error('DB IntegrityError : %s',  err)
+            else:
+                log.error('DB Not Intergrity Error : %s', err)
+        except Exception as err:
+            log.error('DB Exception : %s',  err)
+            if str.find(err.pgerror, "already exists") > 0:
+                sender.sendMessage('DS Download 모니터가 이미 등록 되어 있습니다')
+            else:
+                sender.sendMessage('DS Download 모니터 등록에 실패 하였습니다')
+        except:
+            log.error("psycopg except : " + e)
+            sender.sendMessage('DS Download 모니터 등록에 실패 하였습니다')
+        finally:
+            monitor_curs.close()
+            monitor_conn.close()
+
+
+    def dsdown_status_to_str(self, status):
+        if status == 1:
+            return "대기 중"
+        elif status == 2:
+            return "다운로드 중"
+        elif status == 3:
+            return "일시 정지"
+        elif status == 4:
+            return "종료 중"
+        elif status == 5:
+            return "다운로드 완료"
+        elif status == 6:
+            return "해시 체크 중"
+        elif status == 7:
+            return "시딩 중"
+        elif status == 8:
+            return "파일 호스팅 대기"
+        elif status == 9:
+            return "압축 해제 중"
+        else:
+            return "알 수 없는 코드 [" + str(status) + "]"
+
+
+    def download_db_timer(self):
+        
+        ret = True
+        if self.curs == None:
+            ret = self.db_connect()
+
+
+        if ret == True:
+            query = 'SELECT * FROM btdownload_event WHERE isread=0;'
+            try:
+                self.curs.execute(query)
+                rowitems = self.curs.fetchall()
+                if len(rowitems) > 0:
+                    for row in rowitems:
+                        # task_id|username|filename|status|total_size|isread|create_time
+                        task_id = row[0]
+                        username = row[1]
+                        tor_name = row[2]
+                        status = self.dsdown_status_to_str(row[3])
+                        total_size = CommonUtil.hbytes(row[4])
+
+                        # bot.sendMessage(24501560, "<b>Bold Text</b>\n<pre color='blue'>Test Message</pre>\nHTML Mode", parse_mode='HTML')
+                        msg = '*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s' % (status, tor_name, total_size, username)
+                        
+                        
+                        self.bot.sendMessage(self.chat_id, msg, parse_mode='Markdown')
+
+                        query = "UPDATE btdownload_event SET isread = 1 WHERE task_id = %d" % (task_id)
+                        self.curs.execute(query)
+            except psycopg2.IntegrityError as err:
+                if err.pgcode != '23505':
+                    log.error('download_db_timer|DB IntegrityError : %s',  err)
+                else:
+                    log.error('download_db_timer|DB Not Intergrity Error : %s', err)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+            except Exception as err:
+                log.error('download_db_timer|DB Exception : %s',  err)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+            except:
+                log.error("download_db_timer|psycopg except : " + e)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+            #finally:
+                
+
+
+
