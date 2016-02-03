@@ -1,7 +1,8 @@
-XPEnology 전용 Telegram BOT 프로젝트
+#XPEnology 전용 Telegram BOT 프로젝트
 
 
-설치 방법
+##설치 방법
+
 1. DSM 에 접속하여 패키지 센터에서 "Git Server", "Python Module", "Download Station" 을 설치 한다.
 
 2. Download Station 을 실행 하여 대상 경로를 설정 한다.
@@ -69,6 +70,9 @@ XPEnology 전용 Telegram BOT 프로젝트
 
 **/dsdownloadregister**
 - DS Download 모니터링 Query 등록
+
+**/cancel**
+- 모드 취소
 
 **/help**
 - 도움말
