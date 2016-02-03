@@ -44,7 +44,9 @@ XPEnology 전용 Telegram BOT 프로젝트
   .bot.sh chk
   
 10. Telegram 으로 생성한 BOT 에서 다음 메시지를 전송한다.
-    /dsdownloadregister
+
+    **/dsdownloadregister**
+
     DS Download 모니터가 등록되었습니다 라고 나오면 성공
   
   
