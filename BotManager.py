@@ -156,18 +156,14 @@ class BOTManager(telepot.helper.ChatHandler):
 
     def PrintMsg(self, msg):
         timestr = time.strftime('%Y/%m/%d %H:%M:%S',  time.localtime(msg['date']))
-        log.info('Date : ' + timestr)
-        log.info('Text : ' + msg['text'])
-        log.info('UserName : ' + msg['from']['username'])
-
         log.info('Recv Message : ' + json.dumps(msg,indent=4, ensure_ascii=False))
 
     def on_message(self, msg):
         content_type, chat_type, chat_id = telepot.glance2(msg)
 
-        log.info('ContentType : ' + content_type)
-        log.info('chat_type : ' + chat_type)
-        log.info('chat_id : ' + str(chat_id))
+        log.info('ContentType : %s', content_type)
+        log.info('chat_type : %s', chat_type)
+        log.info('chat_id : %d', chat_id)
 
         # Message to Log Write
         self.PrintMsg(msg)
@@ -175,7 +171,7 @@ class BOTManager(telepot.helper.ChatHandler):
 
         # Valid User Check
         if not chat_id in self.valid_user:
-            log.info("Invalid user : " + chat_id)
+            log.info("Invalid user : %d", chat_id)
             return
 
         if content_type is 'text':
