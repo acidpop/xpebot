@@ -1,3 +1,7 @@
+**bot.sh.ori, xpebot.cfg.ori 파일은 꼭 bot.sh, xpebot.cfg 로 '복사' 하셔서 사용하세요 안그러면 소스 업데이트가 안됩니다.**
+
+
+
 #XPEnology 전용 Telegram BOT 프로젝트
 
 
@@ -33,7 +37,12 @@
     6) pip install psycopg2
    
     7) cd xpebot
+    
+    8) cp bot.sh.ori bot.sh
+    
+    9) cp xpebot.cfg.ori xpebot.cfg
 
+    **bot.sh.ori 파일과 xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 복사 하여 사용**
 
 7. bot.sh 파일을 수정한다.
 
