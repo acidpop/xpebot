@@ -14,23 +14,23 @@ class weather(object):
     def GetSummaryUrl(self, LocalName):
         if LocalName == u'강원도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=105&x=28&y=16"
-        elif LocalName == u'서울특별시' or u'인천광역시' or u'경기도':
+        elif LocalName == u'서울특별시' or LocalName == u'인천광역시' or LocalName == u'경기도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=109&x=23&y=5"
-        elif LocalName == u'부산광역시' or u'울산광역시' or u'경상남도':
+        elif LocalName == u'부산광역시' or LocalName == u'울산광역시' or LocalName == u'경상남도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=159&x=32&y=14"
-        elif LocalName == u'대구광역시' or u'경상북도':
+        elif LocalName == u'대구광역시' or LocalName == u'경상북도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=143&x=15&y=16"
-        elif LocalName == u'광주광역시' or u'전라남도':
+        elif LocalName == u'광주광역시' or LocalName == u'전라남도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=156&x=19&y=18"
         elif LocalName == u'전라북도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=146&x=30&y=2"
         elif LocalName == u'제주특별자치도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=184&x=27&y=10"
-        elif LocalName == u'대전광역시' or u'충청남도':
+        elif LocalName == u'대전광역시' or LocalName == u'충청남도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=133&x=31&y=16"
         elif LocalName == u'충청북도':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=131&x=36&y=9"
-        elif LocalName == u'전국날씨' or u'전국 날씨':
+        elif LocalName == u'전국날씨' or LocalName == u'전국 날씨':
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=108&x=14&y=11"
         else:
             return "http://www.kma.go.kr/weather/forecast/summary.jsp?stnId=108&x=14&y=11"

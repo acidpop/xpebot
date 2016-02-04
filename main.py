@@ -51,6 +51,8 @@ if __name__ == "__main__":
     ])
 
     log.info('Telegram BOT Init OK')
+    
+    bot.sendMessage(botConfig.GetChatId(), 'XPEnology BOT Service start...')
 
     # signal Register
     #signal.signal(signal.SIGINT, signal_sigint)
