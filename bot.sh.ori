@@ -18,7 +18,6 @@ function ProcChk()
 case "$1" in
 start)
     echo "[36m[1mStarting XPEnology Telegram BOT...[0m"
-    cd $TGPATH
     PID=`/bin/ps | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $1}'`
 
     if [ "$PID" ]; then
