@@ -36,8 +36,6 @@ class BotConfig(object):
 
         temp_path = os.path.split(sys.argv[0])
         self.execute_path = temp_path[0]
-        print "Execute Path : " + self.execute_path
-
 
     def GetChatId(self):
         return self.notify_chat_id
