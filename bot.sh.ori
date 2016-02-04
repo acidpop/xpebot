@@ -21,7 +21,7 @@ start)
     cd $TGPATH
     PID=`/bin/ps | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $1}'`
 
-    if [ $PID ]; then
+    if [ "$PID" ]; then
         echo "XPEnology Telegram BOT Already Running"
         # exit 1
     else
@@ -34,7 +34,7 @@ stop)
 
     PID=`/bin/ps | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $1}'`
 
-    if [ -z $PID ]; then
+    if [ -z "$PID" ]; then
         echo "XPEnology Telegram BOT Already Stop"
         # exit 1
     else
