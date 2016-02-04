@@ -8,7 +8,7 @@ XPEBOT_CFG_PATH="/volume1/homes/$DSM_ACCOUNT/xpebot/xpebot.cfg"
 function ProcChk()
 {
     PID=`/bin/ps | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $1}'`
-    if [ "$PID" ] ;  then
+    if [ -z "$PID" ] ;  then
         printf "%16s : [36m[1mRunning[0m\n" "XPEnology Telegram BOT";
     else
         printf "%16s : [31m[1mStopped[0m\n" "XPEnology Telegram BOT";
@@ -21,7 +21,7 @@ start)
     cd $TGPATH
     PID=`/bin/ps | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $1}'`
 
-    if [ "$PID" ]; then
+    if [ -z "$PID" ]; then
         echo "XPEnology Telegram BOT Already Running"
         # exit 1
     else
