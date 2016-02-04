@@ -38,7 +38,7 @@
     
     9) cp xpebot.cfg.ori xpebot.cfg
 
-** bot.sh.ori 파일과 xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 복사 하여 사용**
+    **bot.sh.ori 파일과 xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 복사 하여 사용**
 
 7. bot.sh 파일을 수정한다.
 
