@@ -15,8 +15,8 @@ function ProcChk()
     fi;
 }
 
-case "$1" in
-start)
+function BOTStart()
+{
     echo "[36m[1mStarting XPEnology Telegram BOT...[0m"
     PID=`/bin/ps w | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $1}'`
 
@@ -27,8 +27,12 @@ start)
         $PYTHON_PATH "$XPEBOT_MAIN" "$XPEBOT_CFG_PATH" &
         ProcChk
     fi
-    ;;
-stop)
+    
+}
+
+
+function BOTStop()
+{
     echo "XPEnology Telegram BOT safe stop Trying"
 
     PID=`/bin/ps w | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $1}'`
@@ -41,12 +45,25 @@ stop)
     fi
 
     sleep 1
+}
+
+case "$1" in
+start)
+    BOTStart
+    ;;
+stop)
+    BOTStop
     ProcChk
+    ;;
+restart)
+    BOTStop
+    ProcChk
+    BOTStart
     ;;
 chk)
     ProcChk
     ;;
 *)
-    echo "Usage : `basename $0` [ start | stop | chk ]"
+    echo "Usage : `basename $0` [ start | stop | restart | chk ]"
     ;;
 esac
