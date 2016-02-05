@@ -90,6 +90,30 @@
 
     DS Download 모니터가 등록되었습니다 라고 나오면 성공
   
+
+------
+
+## BotFather 에 Command 등록 하기
+
+1. /secommands 메시지 보내기
+
+2. 설정 할 BOT 계정 선택
+
+3. 다음 메시지 보내기
+```
+torrentsearch - 토렌트 검색
+weather - 날씨 검색
+wol - WOL
+addwol - WOL 장비 추가
+delwol - WOL 장비 삭제
+cancel - 모드 취소
+help - 도움말
+```
+
+4. Bot Father 에게 Success! Command list updated. /help 메시지가 오면성공
+
+
+------
   
 # 사용 방법
   
@@ -117,3 +141,5 @@
 **/help**
 - 도움말
 
+
+------
