@@ -73,16 +73,16 @@
 
 9. xpebot 을 다음 명령어로 실행 한다.
 
-```
-  시작
-  ./bot.sh start
- 
-  종료 
-  ./bot.sh stop
-  
-  실행 여부 확인
-  ./bot.sh chk
-```
+    ```
+      시작
+      ./bot.sh start
+     
+      종료 
+      ./bot.sh stop
+      
+      실행 여부 확인
+      ./bot.sh chk
+    ```
 
 10. Telegram 으로 생성한 BOT 에서 다음 메시지를 전송한다.
 
@@ -100,15 +100,16 @@
 2. 설정 할 BOT 계정 선택
 
 3. 다음 메시지 보내기
-```
-torrentsearch - 토렌트 검색
-weather - 날씨 검색
-wol - WOL
-addwol - WOL 장비 추가
-delwol - WOL 장비 삭제
-cancel - 모드 취소
-help - 도움말
-```
+
+    ```
+    torrentsearch - 토렌트 검색
+    weather - 날씨 검색
+    wol - WOL
+    addwol - WOL 장비 추가
+    delwol - WOL 장비 삭제
+    cancel - 모드 취소
+    help - 도움말
+    ```
 
 4. Bot Father 에게 Success! Command list updated. /help 메시지가 오면성공
 
