@@ -127,7 +127,7 @@
 **/wol**
 - Wake On Lan 기능
 
-**/regiwol**
+**/addwol**
 - Wake On Lan Device 등록
 
 **/delwol**
