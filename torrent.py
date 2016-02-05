@@ -62,11 +62,11 @@ class TorrentManager(object):
         index = int(selected.split('.')[0]) - 1 
         magnet = self.navi.entries[index].link
 
-        log.info('DS Download, Magnet Link : %s', magnet)
+        log.info("DS Download, user:'%s', DownloadPath:'%s', Magnet Link : '%s'", ds_user, sh_dir.decode('utf-8'), magnet)
 
-        query = "INSERT INTO download_queue (username, url, status, filename, pid, created_time, destination) VALUES ('%s', '%s', 1, 'Magnet Link', %d, %d, '%s');" % (ds_user, magnet, os.getpid(), int(time.time()), sh_dir) 
+        query = u"INSERT INTO download_queue (username, url, status, filename, pid, created_time, destination) VALUES ('%s', '%s', 1, 'Magnet Link', %d, %d, '%s');" % (ds_user, magnet, os.getpid(), int(time.time()), sh_dir.decode('utf-8')) 
         log.debug(query)
-        ret = ds.db_exec(query)
+        ret = ds.db_exec(query.encode('utf-8'))
         log.info('torrent download query complete')
 
         hide_keyboard = {'hide_keyboard': True}

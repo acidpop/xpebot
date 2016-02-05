@@ -58,7 +58,7 @@ class BOTManager(telepot.helper.ChatHandler):
             self.tor.torrent_download(command, self.sender)
             self.cur_mode = ''
         # cur_mode 가 wol 이면 등록된 WOL 디바이스 목록을 보여준다. 등록된게 없다면 WOL 등록 시작
-        elif self.cur_mode == 'regiwol':
+        elif self.cur_mode == 'addwol':
             #AddDevice(self, MAC, DeviceName, BroadCastAddr="192.168.0.1"): 
             self.wol.RegiDevice(command, self.sender)
             self.cur_mode = ''
@@ -110,10 +110,10 @@ class BOTManager(telepot.helper.ChatHandler):
                 self.wol.ShowWOLDeviceList(u'WOL 패킷을 보낼 Device를 선택 하세요', self.sender)
                 self.cur_mode = 'wol'
 
-        elif command == '/regiwol':
-            log.info("cmd_handle : Register WOL Device")
+        elif command == '/addwol':
+            log.info("cmd_handle : Add WOL Device")
             self.sender.sendMessage(u'Device 등록 과정을 시작합니다.\n다음 형식으로 입력하세요\nMAC, DeviceName, BroadCastAddr\nex)1a:2b:3c:4d:5e:6f, 거실PC, 192.168.0.255')
-            self.cur_mode = 'regiwol'
+            self.cur_mode = 'addwol'
 
         elif command == '/delwol':
             log.info("cmd_handle : Unregister WOL Device")

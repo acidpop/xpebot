@@ -29,7 +29,10 @@ class BotConfig(object):
         self.notify_chat_id = config.get('TELEGRAM', 'NOTY_CHAT_ID')
         self.dsm_id = config.get('TELEGRAM', 'DSM_ID')
         self.bot_token = config.get('TELEGRAM', 'BOT_TOKEN')
-        self.valid_user_list = eval(config.get('TELEGRAM', 'VALID_USER'))
+        temp_valid_user = str(config.get('TELEGRAM', 'VALID_USER'))
+        if temp_valid_user.find(',') == -1:
+            temp_valid_user += ', '
+        self.valid_user_list = eval(temp_valid_user)
         self.log_path = config.get('TELEGRAM', 'LOG_PATH')
         self.log_size = config.getint('TELEGRAM', 'LOG_MAX_SIZE')
         self.log_count = config.getint('TELEGRAM', 'LOG_COUNT')

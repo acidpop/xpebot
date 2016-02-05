@@ -53,6 +53,9 @@ class weather(object):
         tomorrow_summary =  LocalName + ' ' + week_summary[1].find('caption').text + '\n' + \
                             week_summary[1].find('p').text.replace(u'다.', u'다.\n') + '\n'
 
+        soup.close()
+        data.close()
+        
         return today_summary, tomorrow_summary
 
 
@@ -96,6 +99,9 @@ class weather(object):
                             u'풍향 : ' + dongne[0].find('wdkor').text + u"향\n"\
                             u'습도 : ' + dongne[0].find('reh').text + u"%\n"\
                             u'강수 확률 : ' + dongne[0].find('pop').text + u"%\n"
+            
+            sp.close()
+            data.close()
 
             sender.sendMessage(weather_info, reply_markup=hide_keyboard) 
 

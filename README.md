@@ -1,5 +1,19 @@
 **bot.sh.ori, xpebot.cfg.ori 파일은 꼭 bot.sh, xpebot.cfg 로 '복사' 하셔서 사용하세요 안그러면 소스 업데이트가 안됩니다.**
 
+------
+
+### 변경 내역
+
+**0.1 (2016-02-05)**
+
+- /regiwol 을 /addwol 로 변경
+- Download Station 에서 대상 경로가 한글 일 경우 작동 안되는 문제  
+- 동네 날씨 조회시 계속 같은 정보를 보내주는 문제 수정
+- xpebot.cfg 에서 VALID_USER 에 콤마가 없을 경우 오작동 하는 문제 수정
+ 
+ 
+ ------
+
 
 
 #XPEnology 전용 Telegram BOT 프로젝트

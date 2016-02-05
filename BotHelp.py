@@ -20,7 +20,7 @@ Usage : command [option]
     - 동네 날씨 또는 전국 날씨 요약 정보 조회
 */wol*
     - Wake On Lan 기능
-*/regiwol*
+*/addwol*
     - Wake On Lan Device 등록
 */delwol*
     - Wake On Lan Device 삭제

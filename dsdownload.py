@@ -49,11 +49,34 @@ class dsdownload(object):
             ret = self.db_connect()
 
         if ret == True:
-            self.curs.execute(query)
-            result = self.curs.fetchall()
-            return True, result
+            try:
+                self.curs.execute(query.decode('utf-8'))
+                result = self.curs.fetchall()
+            except psycopg2.IntegrityError as err:
+                if err.pgcode != '23505':
+                    log.error('db_query|DB IntegrityError : %s',  err)
+                else:
+                    log.error('db_query|DB Not Intergrity Error : %s', err)
+                
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+            except Exception as err:
+                log.error('db_query|DB Exception : %s',  err)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+                return False, ''
+            except:
+                log.error("db_query|psycopg except : " + e)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+                return False, ''
+        
+        return True, result
 
-        return False, ''
+        
 
     def db_exec(self, query):
         ret = True
@@ -65,9 +88,25 @@ class dsdownload(object):
                 self.curs.execute(query)
                 log.info('db_exec complete')
                 return True
+            except psycopg2.IntegrityError as err:
+                if err.pgcode != '23505':
+                    log.error('db_exec|DB IntegrityError : %s',  err)
+                else:
+                    log.error('db_exec|DB Not Intergrity Error : %s', err)
+                
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+            except Exception as err:
+                log.error('db_exec|DB Exception : %s',  err)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
             except:
-                log.info('db_exec except')
-                return False
+                log.error("db_exec|psycopg except : " + e)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
 
         return False
 
