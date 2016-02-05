@@ -81,7 +81,7 @@ class weather(object):
             gugun = row[2]
             dong = row[3]
         
-            dong_url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=" + code
+            dong_url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=" + code + '00'
             
             log.info('dongne weather url : %s', dong_url)
             
