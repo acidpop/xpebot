@@ -83,6 +83,8 @@ class weather(object):
         
             dong_url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=" + code
             
+            log.info('dongne weather url : %s', dong_url)
+            
             data = urllib.urlopen(dong_url)
             
             sp = BeautifulSoup.BeautifulSoup(data)
