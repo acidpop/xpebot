@@ -15,3 +15,8 @@ LOG_PATH		= /var/log/xpebot.log
 LOG_MAX_SIZE	= 50
 # 로그 파일 최대 개수
 LOG_COUNT		= 5
+
+# https://developers.naver.com/main
+[NAVER_API]
+CLIENT_ID_KEY		= Naver API Client ID Key
+CLIENT_SECRET_KEY	= Naver API Secret Key

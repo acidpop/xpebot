@@ -31,16 +31,6 @@ def signal_handler(signal, frame):
     log.info('recv signal : ' + str(signal))
     
 
-def signal_sigint(signal, frame):
-    #global th
-    #th.end()
-    #BotManager.BOTManager.ManagerClose()
-    
-    log.info('signal handler : ' +  str(signal))
-    #sys.exit(0)
-    #os.kill(os.getpid(), signal.SIGINT)
-    
-
 if __name__ == "__main__":
     TOKEN = botConfig.GetBotToken()
 
@@ -55,7 +45,6 @@ if __name__ == "__main__":
     bot.sendMessage(botConfig.GetChatId(), 'XPEnology BOT Service start...')
 
     # signal Register
-    #signal.signal(signal.SIGINT, signal_sigint)
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGABRT, signal_handler)
     signal.signal(signal.SIGSEGV, signal_handler)

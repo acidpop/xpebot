@@ -74,6 +74,9 @@ class weather(object):
         cursor = db.cursor()
         cursor.execute(query)
         rowdata = cursor.fetchall()
+
+        before_sido = ''
+
         # 동네 이름이 여러개 있을 경우 모두 출력
         for row in rowdata:
             code = str(row[0])
@@ -96,7 +99,7 @@ class weather(object):
 
             weather_info = sido + ' ' + gugun + ' ' + dong + u' 날씨\n'\
                             u'날씨 : ' + dongne[0].find('wfkor').text + u'\n'\
-                            u'온도 : ' + dongne[0].find('temp').text + u"'C\n"\
+                            u'온도 : ' + dongne[0].find('temp').text + u"℃\n"\
                             u'풍속 : ' + str(ws) + u"m/s\n"\
                             u'풍향 : ' + dongne[0].find('wdkor').text + u"향\n"\
                             u'습도 : ' + dongne[0].find('reh').text + u"%\n"\

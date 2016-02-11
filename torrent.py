@@ -23,13 +23,14 @@ class TorrentManager(object):
         self.navi = feedparser.parse(self.rssUrl+keyword.encode('utf-8'))
 
         outList = []
-        result = "success"
         show_keyboard = {'keyboard': "not found"}
 
         if not self.navi.entries:
             sender.sendMessage('검색결과가 없습니다. 다시 입력하세요.')
             #print('검색결과가 없습니다. 다시 입력하세요.')
-            return result, show_keyboard
+            return False
+
+        title_list = ''
 
         for (i,entry) in enumerate(self.navi.entries):
             if i == 10: break
@@ -38,12 +39,15 @@ class TorrentManager(object):
             templist = []
             templist.append(title)
             outList.append(templist)
+            title_list += title
+            title_list += '\n'
 
-        show_keyboard = {'keyboard': outList}
+        show_keyboard = {'keyboard': outList, 'resize_keyboard': True}
 
-        sender.sendMessage('받을 Torrent를 선택 하세요', reply_markup=show_keyboard)
+        sender.sendMessage('받을 Torrent를 선택 하세요')
+        sender.sendMessage(title_list, reply_markup=show_keyboard)
 
-        return result
+        return True
 
     def torrent_download(self, selected, sender):
         ds = dsdownload.dsdownload()
@@ -78,6 +82,28 @@ class TorrentManager(object):
             sender.sendMessage(u'다운로드 실패', reply_markup=hide_keyboard) 
 
 
+    def ReceiveTorrentFile(self, fileid, file_name, file_ext, sender):
+        filename = file_name + "." + file_ext
+
+        ds = dsdownload.dsdownload()
+
+        log.info('DS Torrent download')
+
+        ret, items = ds.db_query("SELECT * FROM USER_SETTING WHERE username='" + self.dsm_id + "';")
+        if ret == False:
+            log.info('DS Download User Setting not found..')
+            return
+
+        ds_user = items[0][0]
+        watch_dir = items[0][5]
+
+        log.info('ReceiveTorrentFile, ds_user:%s, Watch:%s', ds_user, watch_dir)
+
+        main.bot.downloadFile(fileid, '/volume1/download/torrent_watch')
+
+        log.info('%s download success', filename)
+
+        return True
 
 
 

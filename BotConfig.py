@@ -19,6 +19,11 @@ class BotConfig(object):
     log_count = 0
     execute_path = ""
 
+    # Naver API Config
+    naver_api_use = False
+    naver_client_id = ''
+    naver_secret_key = ''
+
     def __init__(self, *args, **kwargs):
         
         config_file_path = str(args[0])
@@ -36,6 +41,12 @@ class BotConfig(object):
         self.log_path = config.get('TELEGRAM', 'LOG_PATH')
         self.log_size = config.getint('TELEGRAM', 'LOG_MAX_SIZE')
         self.log_count = config.getint('TELEGRAM', 'LOG_COUNT')
+
+        # Naver API Config
+        self.naver_client_id = config.get('NAVER_API', 'CLIENT_ID_KEY')
+        self.naver_secret_key = config.get('NAVER_API', 'CLIENT_SECRET_KEY')
+        if self.naver_client_id and self.naver_secret_key:
+            self.naver_api_use = True
 
         temp_path = os.path.split(sys.argv[0])
         self.execute_path = temp_path[0]
@@ -63,3 +74,12 @@ class BotConfig(object):
 
     def GetExecutePath(self):
         return self.execute_path
+
+    def GetNaverApiUse(self):
+        return self.naver_api_use
+
+    def GetNaverClientId(self):
+        return self.naver_client_id
+
+    def GetNaverClientSecret(self):
+        return self.naver_secret_key

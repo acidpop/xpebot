@@ -24,8 +24,6 @@ Usage : command [option]
     - Wake On Lan Device 등록
 */delwol*
     - Wake On Lan Device 삭제
-*/dsdownloadregister*
-    - DS Download 모니터링 Query 등록
 */help*
     - 도움말
 """

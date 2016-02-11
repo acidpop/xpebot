@@ -20,6 +20,7 @@ import ExTimer
 import dsdownload
 import weather
 import wol
+import NaverApi
 
 from LogManager import log
 
@@ -34,6 +35,7 @@ class BOTManager(telepot.helper.ChatHandler):
     ds = dsdownload.dsdownload()
     wt = weather.weather()
     wol = wol.wol()
+    naverApi = NaverApi.NaverApi()
 
     ds.db_connect()
 
@@ -42,6 +44,9 @@ class BOTManager(telepot.helper.ChatHandler):
 
     valid_user = main.botConfig.GetValidUser()
 
+    def __init__(self, seed_tuple, timeout):
+        super(BOTManager, self).__init__(seed_tuple, timeout)
+        
 
     def current_mode_handler(self, command):
         log.info('current mode handler : ' +  self.cur_mode)
@@ -49,10 +54,11 @@ class BOTManager(telepot.helper.ChatHandler):
         # cur_mode == torrentsearch 이면 받은 command 를 Torrent Keywork 로 검색
         if self.cur_mode == 'torrentsearch':
             result = self.tor.tor_search(command, self.sender)
-            if result == 'success':
+            if result == True:
                 self.cur_mode = 'torrent_list'
             else:
-                self.cur_mode = ''
+                self.cur_mode = 'torrentsearch'
+
         # torrent_list 모드이면 입력받은 값을 기준으로 Torrent 를 다운로드 한다.
         elif self.cur_mode == 'torrent_list':
             self.tor.torrent_download(command, self.sender)
@@ -71,6 +77,14 @@ class BOTManager(telepot.helper.ChatHandler):
         elif self.cur_mode == 'weather':
             self.wt.GetDongneWether(self.sender, command)
             self.cur_mode = ''
+        elif self.cur_mode == 'en2ko':
+            response = self.naverApi.TranslateEn2Ko(command, self.sender)
+            self.sender.sendMessage(response)
+            self.cur_mode = ''
+        elif self.cur_mode == 'ko2en':
+            response = self.naverApi.TranslateKo2En(command, self.sender)
+            self.sender.sendMessage(response)
+            self.cur_mode = ''
 
         return
     
@@ -83,6 +97,18 @@ class BOTManager(telepot.helper.ChatHandler):
             self.cur_mode = ''
             return
 
+        if command == '/start':
+            #{'keyboard': [['Yes', 'No'], ['Maybe', 'Maybe not']]}
+            #start_keyboard = {'keyboard': [['Yes', 'No'], ['Maybe', 'Maybe not']]}
+            start_keyboard = {'keyboard': [['/torrentsearch'], 
+                                           ['/weather'], 
+                                           ['/wol', '/addwol', '/delwol'],
+                                           ['/help']
+                                           ]}
+            self.sender.sendMessage(u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
+            self.cur_mode = ''
+            return
+
         if self.cur_mode:
             self.current_mode_handler(command)
             return
@@ -92,7 +118,7 @@ class BOTManager(telepot.helper.ChatHandler):
         if command == '/torrentsearch':
             log.info("cmd_handle : Torrent Search")
             self.cur_mode = 'torrentsearch'
-            self.sender.sendMessage(u'검색 할 Torrent 제목을 입력하세요')
+            self.sender.sendMessage(u'검색 할 Torrent 제목을 입력하세요', reply_markup=self.hide_keyboard)
 
         elif command == '/weather':
             log.info("cmd_handle : Weather")
@@ -112,7 +138,7 @@ class BOTManager(telepot.helper.ChatHandler):
 
         elif command == '/addwol':
             log.info("cmd_handle : Add WOL Device")
-            self.sender.sendMessage(u'Device 등록 과정을 시작합니다.\n다음 형식으로 입력하세요\nMAC, DeviceName, BroadCastAddr\nex)1a:2b:3c:4d:5e:6f, 거실PC, 192.168.0.255')
+            self.sender.sendMessage(u'Device 등록 과정을 시작합니다.\n다음 형식으로 입력하세요\nMAC, DeviceName, BroadCastAddr\nex)1a:2b:3c:4d:5e:6f, 거실PC, 192.168.0.255\nBroadCast 주소의 가장 끝은 255입니다', reply_markup=self.hide_keyboard)
             self.cur_mode = 'addwol'
 
         elif command == '/delwol':
@@ -125,19 +151,28 @@ class BOTManager(telepot.helper.ChatHandler):
             sysinfo = systemutil.system_status()
             str_sysinfo = json.dumps(sysinfo,indent=4, ensure_ascii=False)
             log.info('sysinfo : %s', str_sysinfo)
-            self.sender.sendMessage(str_sysinfo)
+            self.sender.sendMessage(str_sysinfo, reply_markup=self.hide_keyboard)
+
+        elif command == '/en2ko':
+            self.sender.sendMessage(u'한국어로 번역 할 영어 문장을 입력하세요', reply_markup=self.hide_keyboard)
+            self.cur_mode = 'en2ko'
+        elif command == '/ko2en':
+            self.sender.sendMessage(u'영어로 번역 할 한국어 문장을 입력하세요', reply_markup=self.hide_keyboard)
+            self.cur_mode = 'ko2en'
 
         elif command == '/help':
             log.info("cmd_handle : Help Mode")
-            self.SendMarkupMessage(self.helper.HelpText)
+            self.SendMarkupMessage(self.helper.HelpText, reply_markup=self.hide_keyboard)
 
-        elif command == '/dsdownloadregister':
-            log.info("cmd_handle : DS Download Monitor Query Register")
-            self.ds.dsdownload_register_monitor_query(self.sender)
+        #elif command == '/dsdownloadregister':
+        #    log.info("cmd_handle : DS Download Monitor Query Register")
+        #    self.ds.dsdownload_register_monitor_query(self.sender)
 
     # 전송된 파일을 처리 하는 함수
     def file_handler(self, file_name, file_id, file_ext):
-        if file_ext is 'torrent':
+        log.info('file_name:%s, id:%s, ext:%s', file_name, file_id, file_ext)
+        if file_ext is '.torrent':
+            self.tor.ReceiveTorrentFile(file_id, file_name, file_ext, self.sender)
             return
 
     def SendMessage(self, message, show_keyboard):
@@ -159,6 +194,18 @@ class BOTManager(telepot.helper.ChatHandler):
         log.info('Recv Message : ' + json.dumps(msg,indent=4, ensure_ascii=False))
 
     def on_message(self, msg):
+
+        flavor = telepot.flavor(msg)
+
+        # Have to answer inline query to receive chosen result
+        if flavor == 'inline_query':
+            log.info('inline query!!')
+            query_id, from_id, query_string = telepot.glance(msg, flavor=flavor)
+
+            articles = [{'type': 'article',
+                             'id': 'abc', 'title': 'ABC', 'message_text': 'Good morning'}]
+            self.bot.answerInlineQuery(query_id, articles)
+
         content_type, chat_type, chat_id = telepot.glance2(msg)
 
         log.info('ContentType : %s', content_type)
@@ -167,7 +214,6 @@ class BOTManager(telepot.helper.ChatHandler):
 
         # Message to Log Write
         self.PrintMsg(msg)
-        
 
         # Valid User Check
         if not chat_id in self.valid_user:

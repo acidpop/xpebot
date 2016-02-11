@@ -190,6 +190,77 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
             monitor_conn.close()
 
 
+    def CreateMonitorTable(self):
+        
+        query = """CREATE TABLE btdownload_event(
+    task_id           integer   NOT NULL,
+    username          character varying(128),
+    filename          text,
+    status            integer,
+    total_size        bigint,
+    isread            integer,
+    create_time       date
+);"""
+
+        if self.db_exec(query) :
+            log.info('CreateMonitorTable Success')
+        else:
+            log.info('CreateMonitorTable Fail')
+
+        return
+
+    def CreateMonitorProcedure(self):
+        query = """CREATE OR REPLACE FUNCTION process_btdownload_event() RETURNS TRIGGER AS $btdownload_event$
+    DECLARE
+        rec_count integer;
+    BEGIN
+        IF (TG_OP = 'INSERT') THEN
+            RETURN NEW;
+        ELSIF (TG_OP = 'UPDATE') THEN
+            IF (NEW.status = 2 AND NEW.total_size > 0 AND NEW.current_size > 0) THEN
+                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 2;
+                IF ( rec_count = 0 ) THEN
+                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
+                END IF;
+            ELSIF (NEW.status = 5 ) THEN
+                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 5;
+                IF ( rec_count = 0 ) THEN
+                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
+                END IF;
+            ELSIF (NEW.status = 118) THEN
+                UPDATE download_queue SET status = 5, extra_info = '' WHERE task_id = NEW.task_id;
+                DELETE FROM task_plugin WHERE task_id = NEW.task_id;
+                DELETE FROM thumbnail WHERE task_id = NEW.task_id;
+            END IF;
+            RETURN NEW;
+        ELSIF (TG_OP = 'DELETE') THEN
+                DELETE FROM btdownload_event WHERE task_id = OLD.task_id;
+            RETURN OLD;
+        END IF;
+        RETURN NULL;
+    END;
+$btdownload_event$ LANGUAGE plpgsql;"""
+
+        if self.db_exec(query) :
+            log.info('CreateMonitorProcedure Success')
+        else:
+            log.info('CreateMonitorProcedure Fail')
+
+        return
+
+
+    def CreateMonitorTrigger(self):
+        query = """CREATE TRIGGER btdownload_event
+AFTER INSERT OR UPDATE OR DELETE ON download_queue
+FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
+
+        if self.db_exec(query) :
+            log.info('CreateMonitorTrigger Success')
+        else:
+            log.info('CreateMonitorTrigger Fail')
+
+        return
+
     def dsdown_status_to_str(self, status):
         if status == 1:
             return "대기 중"
@@ -213,12 +284,72 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
             return "알 수 없는 코드 [" + str(status) + "]"
 
 
-    def download_db_timer(self):
-        
+    def CheckDownloadMonitorTable(self):
+
+        log.info('CheckDownloadMonitorTable start...')
+
         ret = True
         if self.curs == None:
             ret = self.db_connect()
 
+        
+        if ret == True:
+            table_query = "select count(*) from information_schema.tables where table_name = 'btdownload_event';"
+            proc_query = "select count(*) from pg_proc where proname = 'process_btdownload_event';"
+            trigger_query = "select count(*) from pg_trigger where tgname = 'btdownload_event';"
+
+            try:
+                # Check Table Exist
+                self.curs.execute(table_query)
+                rowitem = self.curs.fetchone()
+                if rowitem[0] == 0:
+                    log.info('monitor table is not exist.. try create table')
+                    self.CreateMonitorTable()
+                    self.bot.sendMessage(self.chat_id, 'DS Download Monitor Table 등록')
+
+                # Check Procedure Exist
+                self.curs.execute(proc_query)
+                rowitem = self.curs.fetchone()
+                if rowitem[0] == 0:
+                    log.info('monitor procedure is not exist.. try create procedure')
+                    self.CreateMonitorProcedure()
+                    self.bot.sendMessage(self.chat_id, 'DS Download Monitor Procedure 등록')
+
+                # Check Trigger Exist
+                self.curs.execute(trigger_query)
+                rowitem = self.curs.fetchone()
+                if rowitem[0] == 0:
+                    log.info('monitor trigger is not exist... try create trigger')
+                    self.CreateMonitorTrigger()
+                    self.bot.sendMessage(self.chat_id, 'DS Download Monitor Trigger 등록')
+
+            except psycopg2.IntegrityError as err:
+                if err.pgcode != '23505':
+                    log.error('CheckDownloadMonitorTable|DB IntegrityError : %s',  err)
+                else:
+                    log.error('CheckDownloadMonitorTable|DB Not Intergrity Error : %s', err)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+            except Exception as err:
+                log.error('CheckDownloadMonitorTable|DB Exception : %s',  err)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+            except:
+                log.error("CheckDownloadMonitorTable|psycopg except : " + e)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+
+            log.info('CheckDownloadMonitorTable exit...')
+            return
+
+
+    def download_db_timer(self):
+        ret = True
+        if self.curs == None:
+            ret = self.db_connect()
 
         if ret == True:
             query = 'SELECT * FROM btdownload_event WHERE isread=0;'
@@ -252,6 +383,11 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                 self.curs = None
             except Exception as err:
                 log.error('download_db_timer|DB Exception : %s',  err)
+                strErr = str(err.message)
+                log.error('error ---- %s, %d', strErr, strErr.find('relation "btdownload_event" does not exist'))
+                if strErr.find('relation "btdownload_event" does not exist') != -1:
+                    self.CheckDownloadMonitorTable()
+
                 self.curs.close()
                 self.conn.close()
                 self.curs = None
