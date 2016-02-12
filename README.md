@@ -1,8 +1,25 @@
-**bot.sh.ori, xpebot.cfg.ori 파일은 꼭 bot.sh, xpebot.cfg 로 '복사' 하셔서 사용하세요 안그러면 소스 업데이트가 안됩니다.**
+**bot.sh.ori, xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 '복사' 하셔서 사용하세요 안그러면 소스 업데이트가 안됩니다.**
 
 ------
 
 ### 변경 내역
+
+**0.2 (2016-02-13)**
+- RSS 뉴스 리더 기능 추가
+- NAS 의 시스템 리소스 조회 기능 추가(cpu, ram, disk)
+- /start 명령 추가 (사용 가능 기능을 Custom Keyboard로 보여주기)
+- 등록 되지 않은 명령어 입력시 /start 명령과 동일한 동작을 하도록 변경
+- 네이버 REST Open API 일부 기능 지원 (Naver Developers 에 내 애플리케이션이 등록 되어 있어야 하고 비로그인 오픈 API 기능이 체크 되어야 함)
+- 일정 시간이 지나면 봇이 응답하지 않던 문제 수정
+- xpebot.cfg 에 Naver API 와 RSS 링크 섹션 추가
+- dsdownloadregister 명령 삭제
+- DS Download Monitor Query 는 자동으로 등록 하도록 변경
+- Torrent 검색 목록이 Custom Keyboard 로만 보여지던것을 메시지에도 표시
+- /로 시작하는 명령 입력 후 사용자 입력이 120초(2분) 이내에 응답이 없으면 '입력 시간이 초과 되었습니다' 라는 메시지 전송하고 초기 모드로 돌아감
+- 날씨 정보에서 풍향을 XX풍에서 XX향 으로 변경
+- 날씨 정보에서 'C 를 ℃ 문자로 변경
+
+
 
 **0.1 (2016-02-05)**
 
@@ -69,6 +86,13 @@
     2) DSM_ID 는 자신의 DSM ID 를 입력한다.
   
     3) BOT_TOKEN 은 Telegram 의 Bot Father 에서 /newbot 을 요청하여 BOT 생성 후 자신의 BOT TOKEN 값을 입력한다.
+
+	4) VALID_USER 는 인증된 사용자의 chat_id 값을 입력한다. 여러명일 경우 ,(콤마)를 이용해 구분한다.
+
+	5) NAVER_API 섹션에 발급 받은 CLIENT_ID_KEY 값과 CLIENT_SECRET_KEY 값을 입력한다.
+
+	6) RSS_NEWS 섹션에 보고 싶은 뉴스의 RSS 주소를 입력한다.
+
  
 
 9. xpebot 을 다음 명령어로 실행 한다.
@@ -84,11 +108,6 @@
   ./bot.sh chk
 ```
 
-10. Telegram 으로 생성한 BOT 에서 다음 메시지를 전송한다.
-
-    **/dsdownloadregister**
-
-    DS Download 모니터가 등록되었습니다 라고 나오면 성공
   
   
 # 사용 방법
@@ -108,8 +127,20 @@
 **/delwol**
 - Wake On Lan Device 삭제
 
-**/dsdownloadregister**
-- DS Download 모니터링 Query 등록
+**/systeminfo**
+- NAS System 리소스 조회
+
+**/en2ko**
+- 영어 문장을 한글로 기계 번역 (Naver Developers 에 등록된 키가 있어야 함)
+
+**/ko2en**
+- 한글 문장을 영어로 기계 번역 (Naver Developers 에 등록된 키가 있어야 함)
+
+**/shorturl**
+- url 을 짧게 줄여주는 기능 (Naver Developers 에 등록된 키가 있어야 함)
+
+**/news**
+- RSS 뉴스 URL 조회
 
 **/cancel**
 - 모드 취소

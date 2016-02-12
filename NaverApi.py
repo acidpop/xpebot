@@ -19,6 +19,8 @@ class NaverApi(object):
 
         if self.naver_api_use == False:
             return 'Not Support'
+
+        text = text.replace('"', '\\"')
         
         cmd = 'curl -s -k -H "X-Naver-Client-Id: %s" -H "X-Naver-Client-Secret: %s" -d "source=en" -d "target=ko" -d "text=%s" https://openapi.naver.com/v1/language/translate' % (self.naver_client_id, self.naver_client_secret, text)
         log.info('Naver API TranslateEn2Ko Command : %s', cmd)
@@ -41,6 +43,8 @@ class NaverApi(object):
         if self.naver_api_use == False:
             return 'Not Support'
 
+        text = text.replace('"', '\\"')
+
         cmd = 'curl -s -k -H "X-Naver-Client-Id: %s" -H "X-Naver-Client-Secret: %s" -d "source=ko" -d "target=en" -d "text=%s" https://openapi.naver.com/v1/language/translate' % (self.naver_client_id, self.naver_client_secret, text)
         log.info('Naver API TranslateKo2En Command : %s', cmd)
         response_json = cmdutil.ExecuteCommand(cmd.encode('utf-8'))
@@ -56,4 +60,26 @@ class NaverApi(object):
             translateText = response['errorMessage']
         
         return translateText
+
+    def ShortUrl(self, url, sender):
+        # curl -s -k -H "X-Naver-Client-Id: YLjsWM1fVoSKeTsJpYu0" -H "X-Naver-Client-Secret: xjQFC37UAJ" -d "url=%s" https://openapi.naver.com/v1/util/shorturl
+        # {message=ok, result={hash=GNALNDIU, url=http://me2.do/GNALNDIU, orgUrl=https://github.com/nickoala/telepot/blob/master/examples/emodi.py}, code=200}
+        if self.naver_api_use == False:
+            return 'Not Support'
+
+        cmd = 'curl -s -k -H "X-Naver-Client-Id: %s" -H "X-Naver-Client-Secret: %s" -d "url=%s" https://openapi.naver.com/v1/util/shorturl.json' % (self.naver_client_id, self.naver_client_secret, url)
+        log.info('Naver API ShortUrl Command : %s', cmd)
+        response_json = cmdutil.ExecuteCommand(cmd.encode('utf-8'))
+
+        log.info('Naver API ShortUrl Response : %s', response_json)
+        response = json.loads(response_json)
+
+        if response['message'] == 'ok':
+            short_url = response['result']['url']
+        else:
+            short_url = response['message']
+
+        log.info('Naver API ShortUrl Result : %s', short_url)
+        
+        return short_url
 

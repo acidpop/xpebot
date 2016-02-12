@@ -21,10 +21,13 @@ import dsdownload
 import weather
 import wol
 import NaverApi
+import rssManager
 
 from LogManager import log
 
-class BOTManager(telepot.helper.ChatHandler):
+# Emoji Unicode 참고 : http://apps.timwhitlock.info/emoji/tables/unicode
+
+class BOTManager(telepot.helper.UserHandler):
 
     cur_mode = ''
     hide_keyboard = {'hide_keyboard': True}
@@ -36,20 +39,32 @@ class BOTManager(telepot.helper.ChatHandler):
     wt = weather.weather()
     wol = wol.wol()
     naverApi = NaverApi.NaverApi()
+    rssManager = rssManager.rssManager()
 
     ds.db_connect()
 
     dsdown_monitor = ExTimer.ExTimer(3, ds.download_db_timer)
     dsdown_monitor.start()
+    
+    bot_update_loop = None
+    
+    TOKEN = main.botConfig.GetBotToken()
+    bot = telepot.Bot(TOKEN)
 
     valid_user = main.botConfig.GetValidUser()
 
     def __init__(self, seed_tuple, timeout):
         super(BOTManager, self).__init__(seed_tuple, timeout)
+        if self.bot_update_loop == None:
+            log.info('bot getUpdates loop start...')
+            self.bot_update_loop = ExTimer.ExTimer(60, self.getUpdatesLoop)
+            self.bot_update_loop.start()
         
+
 
     def current_mode_handler(self, command):
         log.info('current mode handler : ' +  self.cur_mode)
+        
 
         # cur_mode == torrentsearch 이면 받은 command 를 Torrent Keywork 로 검색
         if self.cur_mode == 'torrentsearch':
@@ -77,12 +92,18 @@ class BOTManager(telepot.helper.ChatHandler):
         elif self.cur_mode == 'weather':
             self.wt.GetDongneWether(self.sender, command)
             self.cur_mode = ''
+
+        # Naver Developer API
         elif self.cur_mode == 'en2ko':
             response = self.naverApi.TranslateEn2Ko(command, self.sender)
             self.sender.sendMessage(response)
             self.cur_mode = ''
         elif self.cur_mode == 'ko2en':
             response = self.naverApi.TranslateKo2En(command, self.sender)
+            self.sender.sendMessage(response)
+            self.cur_mode = ''
+        elif self.cur_mode == 'shorturl':
+            response = self.naverApi.ShortUrl(command, self.sender)
             self.sender.sendMessage(response)
             self.cur_mode = ''
 
@@ -98,14 +119,12 @@ class BOTManager(telepot.helper.ChatHandler):
             return
 
         if command == '/start':
-            #{'keyboard': [['Yes', 'No'], ['Maybe', 'Maybe not']]}
-            #start_keyboard = {'keyboard': [['Yes', 'No'], ['Maybe', 'Maybe not']]}
             start_keyboard = {'keyboard': [['/torrentsearch'], 
                                            ['/weather'], 
                                            ['/wol', '/addwol', '/delwol'],
                                            ['/help']
                                            ]}
-            self.sender.sendMessage(u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
+            self.sender.sendMessage(u'사용 하실 명령을 선택하세요 \U0001f60f', reply_markup=start_keyboard)
             self.cur_mode = ''
             return
 
@@ -115,12 +134,12 @@ class BOTManager(telepot.helper.ChatHandler):
 
         self.cur_mode = ''
 
-        if command == '/torrentsearch':
+        if command == '/torrentsearch' or command == u'/토렌트':
             log.info("cmd_handle : Torrent Search")
             self.cur_mode = 'torrentsearch'
             self.sender.sendMessage(u'검색 할 Torrent 제목을 입력하세요', reply_markup=self.hide_keyboard)
 
-        elif command == '/weather':
+        elif command == '/weather' or command == u'/날씨':
             log.info("cmd_handle : Weather")
             self.cur_mode = 'weather'
             weather_keyboard = {'keyboard': [[u'전국 날씨']], 'resize_keyboard': True}
@@ -148,25 +167,43 @@ class BOTManager(telepot.helper.ChatHandler):
 
         elif command == '/systeminfo':
             log.info("cmd_handle : System Info")
-            sysinfo = systemutil.system_status()
-            str_sysinfo = json.dumps(sysinfo,indent=4, ensure_ascii=False)
-            log.info('sysinfo : %s', str_sysinfo)
-            self.sender.sendMessage(str_sysinfo, reply_markup=self.hide_keyboard)
+            sysinfo = systemutil.system_status(0.5)
+            log.info('sysinfo : %s', sysinfo.decode('utf-8'))
+            self.SendMarkupMessage(sysinfo.decode('utf-8'), self.hide_keyboard)
 
-        elif command == '/en2ko':
-            self.sender.sendMessage(u'한국어로 번역 할 영어 문장을 입력하세요', reply_markup=self.hide_keyboard)
-            self.cur_mode = 'en2ko'
-        elif command == '/ko2en':
-            self.sender.sendMessage(u'영어로 번역 할 한국어 문장을 입력하세요', reply_markup=self.hide_keyboard)
-            self.cur_mode = 'ko2en'
+        # Naver Developer API
+        elif command == '/en2ko' or command == u'/영한':
+            if self.naverApi.naver_api_use:
+                self.sender.sendMessage(u'한국어로 번역 할 영어 문장을 입력하세요', reply_markup=self.hide_keyboard)
+                self.cur_mode = 'en2ko'
+        elif command == '/ko2en' or command == u'/한영':
+            if self.naverApi.naver_api_use:
+                self.sender.sendMessage(u'영어로 번역 할 한국어 문장을 입력하세요', reply_markup=self.hide_keyboard)
+                self.cur_mode = 'ko2en'
+        elif command == '/shorturl' :
+            if self.naverApi.naver_api_use:
+                self.sender.sendMessage(u'짧게 줄일 URL을 입력하세요', reply_markup=self.hide_keyboard)
+                self.cur_mode = 'shorturl'
+
+        elif command == '/news' or command == u'/뉴스':
+            response = self.rssManager.RssNewsReader()
+            self.sender.sendMessage(response, reply_markup=self.hide_keyboard, parse_mode='HTML', disable_web_page_preview=True)
 
         elif command == '/help':
             log.info("cmd_handle : Help Mode")
-            self.SendMarkupMessage(self.helper.HelpText, reply_markup=self.hide_keyboard)
+            self.SendMarkupMessage(self.helper.HelpText, self.hide_keyboard)
+        
+        else:
+            start_keyboard = {'keyboard': [['/torrentsearch'], 
+                                           ['/weather', '/systeminfo'], 
+                                           ['/wol', '/addwol', '/delwol'],
+                                           ['/en2ko', '/ko2en', '/shorturl'],
+                                           ['/news'],
+                                           ['/help']
+                                           ]}
+            self.sender.sendMessage(u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
+            self.cur_mode = ''
 
-        #elif command == '/dsdownloadregister':
-        #    log.info("cmd_handle : DS Download Monitor Query Register")
-        #    self.ds.dsdownload_register_monitor_query(self.sender)
 
     # 전송된 파일을 처리 하는 함수
     def file_handler(self, file_name, file_id, file_ext):
@@ -181,9 +218,12 @@ class BOTManager(telepot.helper.ChatHandler):
         else:
             self.sender.sendMessage(message, reply_markup=show_keyboard)
 
-    def SendMarkupMessage(self, message):
+    def SendMarkupMessage(self, message, show_keyboard):
         log.debug(message)
-        self.sender.sendMessage(message, parse_mode='Markdown')
+        if show_keyboard == '':
+            self.sender.sendMessage(message, parse_mode='Markdown')
+        else:
+            self.sender.sendMessage(message, parse_mode='Markdown', reply_markup=show_keyboard)
 
     def SendHtmlMessage(self, message):
         log.debug(message)
@@ -197,6 +237,7 @@ class BOTManager(telepot.helper.ChatHandler):
 
         flavor = telepot.flavor(msg)
 
+        # inline query test code...
         # Have to answer inline query to receive chosen result
         if flavor == 'inline_query':
             log.info('inline query!!')
@@ -206,7 +247,7 @@ class BOTManager(telepot.helper.ChatHandler):
                              'id': 'abc', 'title': 'ABC', 'message_text': 'Good morning'}]
             self.bot.answerInlineQuery(query_id, articles)
 
-        content_type, chat_type, chat_id = telepot.glance2(msg)
+        content_type, chat_type, chat_id = telepot.glance(msg)
 
         log.info('ContentType : %s', content_type)
         log.info('chat_type : %s', chat_type)
@@ -235,6 +276,8 @@ class BOTManager(telepot.helper.ChatHandler):
     def on_close(self, exception):
         if type(exception) == telepot.helper.WaitTooLong:
             log.debug('Wait Timeout')
+            if self.cur_mode != '':
+                self.sender.sendMessage('입력 시간이 초과 되었습니다', reply_markup=self.hide_keyboard)
         else:
             log.error('on_close - exception :')
             log.error(exception)
@@ -248,4 +291,7 @@ class BOTManager(telepot.helper.ChatHandler):
     def ManagerClose(self):
         log.info('Bot Manager Close')
         self.dsdown_monitor.cancel()
+        self.bot_update_loop.cancel()
 
+    def getUpdatesLoop(self):
+        response = self.bot.getUpdates()

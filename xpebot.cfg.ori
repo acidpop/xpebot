@@ -17,6 +17,13 @@ LOG_MAX_SIZE	= 50
 LOG_COUNT		= 5
 
 # https://developers.naver.com/main
+# Naver Developers 에서 애플리케이션을 등록 하고 비로그인 오픈 API에 모두 체크 해야 함
 [NAVER_API]
 CLIENT_ID_KEY		= Naver API Client ID Key
 CLIENT_SECRET_KEY	= Naver API Secret Key
+
+[RSS_NEWS]
+# 기본 RSS 뉴스는 다음 뉴스로 설정
+RSS_URL			= http://media.daum.net/syndication/today_sisa.rss
+# NEWS 최대 개수
+RSS_COUNT		= 20

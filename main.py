@@ -5,7 +5,7 @@ import os
 
 import telepot
 import subprocess
-from telepot.delegate import per_chat_id, create_open
+from telepot.delegate import per_chat_id, per_from_id, create_open
 import signal
 import BotManager
 import BotConfig
@@ -23,12 +23,12 @@ global bot
 botConfig = BotConfig.BotConfig( sys.argv[1] )
 bot = None
 
-
 from LogManager import log
 
+SIGNALS_TO_NAMES_DICT = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n )
 
 def signal_handler(signal, frame):
-    log.info('recv signal : ' + str(signal))
+    log.info('recv signal : %s[%d]', SIGNALS_TO_NAMES_DICT[signal], signal)
     
 
 if __name__ == "__main__":
@@ -36,19 +36,20 @@ if __name__ == "__main__":
 
     log.info('Telegram BOT Initialize...')
 
-    bot = telepot.DelegatorBot(TOKEN, [
-        (per_chat_id(), create_open(BotManager.BOTManager, timeout=30)),
-    ])
-
-    log.info('Telegram BOT Init OK')
-    
-    bot.sendMessage(botConfig.GetChatId(), 'XPEnology BOT Service start...')
-
     # signal Register
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGABRT, signal_handler)
     signal.signal(signal.SIGSEGV, signal_handler)
     signal.signal(signal.SIGHUP, signal_handler)
+    log.info('signal Register success')
+
+    bot = telepot.DelegatorBot(TOKEN, [
+        (per_from_id(), create_open(BotManager.BOTManager, timeout=120)),
+    ])
+
+    log.info('Telegram BOT Init OK')
+    
+    bot.sendMessage(botConfig.GetChatId(), 'XPEnology BOT Service start...')
 
     bot.notifyOnMessage(run_forever=True)
 

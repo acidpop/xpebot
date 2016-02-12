@@ -2,6 +2,7 @@
 
 import sys
 import os
+import socket
 import ConfigParser
 
 class BotConfig(object):
@@ -23,6 +24,12 @@ class BotConfig(object):
     naver_api_use = False
     naver_client_id = ''
     naver_secret_key = ''
+    
+    # Rss New Url
+    rss_news_url = ''
+    rss_news_count = 10
+
+    host_name = ''
 
     def __init__(self, *args, **kwargs):
         
@@ -48,8 +55,14 @@ class BotConfig(object):
         if self.naver_client_id and self.naver_secret_key:
             self.naver_api_use = True
 
+        # RSS News
+        self.rss_news_url = config.get('RSS_NEWS', 'RSS_URL')
+        self.rss_news_count = config.getint('RSS_NEWS', 'RSS_COUNT')
+
         temp_path = os.path.split(sys.argv[0])
         self.execute_path = temp_path[0]
+
+        self.host_name = socket.gethostname()
 
     def GetChatId(self):
         return self.notify_chat_id
@@ -83,3 +96,13 @@ class BotConfig(object):
 
     def GetNaverClientSecret(self):
         return self.naver_secret_key
+
+    def GetRssNewsUrl(self):
+        return self.rss_news_url
+
+    def GetRssNewsCount(self):
+        return self.rss_news_count
+
+    def GetHostName(self):
+        return self.host_name
+

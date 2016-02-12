@@ -10,22 +10,30 @@
 class BotHelp(object):
     """Telegram BOT Heper"""
     HelpText = """
-    Acidpop Telegram BOT
+    *Acidpop Telegram BOT*
 
-Usage : command [option]
-
-*/torrentsearch*
-    - 토렌트 검색
-*/weather*
-    - 동네 날씨 또는 전국 날씨 요약 정보 조회
-*/wol*
-    - Wake On Lan 기능
-*/addwol*
-    - Wake On Lan Device 등록
-*/delwol*
-    - Wake On Lan Device 삭제
-*/help*
-    - 도움말
+/torrentsearch
+    - *토렌트 검색*
+/weather
+    - *동네 날씨 또는 전국 날씨 요약 정보 조회*
+/wol
+    - *Wake On Lan 기능*
+/addwol
+    - *Wake On Lan Device 등록*
+/delwol
+    - *Wake On Lan Device 삭제*
+/systeminfo
+    - *NAS System 리소스 조회*
+/en2ko
+    - *영어 문장을 한글로 기계 번역 (Naver Developers 에 등록된 키가 있어야 함)*
+/ko2en
+    - *한글 문장을 영어로 기계 번역 (Naver Developers 에 등록된 키가 있어야 함)*
+/shorturl
+    - *url 을 짧게 줄여주는 기능 (Naver Developers 에 등록된 키가 있어야 함)*
+/news
+    - *RSS 뉴스 URL 조회*
+/help
+    - *도움말*
 """
 
 

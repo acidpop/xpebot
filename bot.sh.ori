@@ -25,6 +25,7 @@ function BOTStart()
         # exit 1
     else
         $PYTHON_PATH "$XPEBOT_MAIN" "$XPEBOT_CFG_PATH" &
+		sleep 1
         ProcChk
     fi
     
