@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     log.info('Telegram BOT Init OK')
     
-    bot.sendMessage(botConfig.GetChatId(), 'XPEnology BOT Service start...')
+    #bot.sendMessage(botConfig.GetChatId(), 'XPEnology BOT Service start...')
 
     bot.notifyOnMessage(run_forever=True)
 
