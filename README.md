@@ -103,18 +103,43 @@ http://blog.acidpop.kr/214
 
 9. xpebot 을 다음 명령어로 실행 한다.
 
-```
-  시작
-  ./bot.sh start
- 
-  종료 
-  ./bot.sh stop
-  
-  실행 여부 확인
-  ./bot.sh chk
-```
+    ```
+      시작
+      ./bot.sh start
+     
+      종료 
+      ./bot.sh stop
+      
+      실행 여부 확인
+      ./bot.sh chk
+    ```
 
   
+
+------
+
+## BotFather 에 Command 등록 하기
+
+1. /secommands 메시지 보내기
+
+2. 설정 할 BOT 계정 선택
+
+3. 다음 메시지 보내기
+
+    ```
+    torrentsearch - 토렌트 검색
+    weather - 날씨 검색
+    wol - WOL
+    addwol - WOL 장비 추가
+    delwol - WOL 장비 삭제
+    cancel - 모드 취소
+    help - 도움말
+    ```
+
+4. Bot Father 에게 Success! Command list updated. /help 메시지가 오면성공
+
+
+------
   
 # 사용 방법
   
@@ -127,7 +152,7 @@ http://blog.acidpop.kr/214
 **/wol**
 - Wake On Lan 기능
 
-**/regiwol**
+**/addwol**
 - Wake On Lan Device 등록
 
 **/delwol**
@@ -154,3 +179,5 @@ http://blog.acidpop.kr/214
 **/help**
 - 도움말
 
+
+------

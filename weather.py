@@ -101,7 +101,7 @@ class weather(object):
                             u'날씨 : ' + dongne[0].find('wfkor').text + u'\n'\
                             u'온도 : ' + dongne[0].find('temp').text + u"℃\n"\
                             u'풍속 : ' + str(ws) + u"m/s\n"\
-                            u'풍향 : ' + dongne[0].find('wdkor').text + u"향\n"\
+                            u'풍향 : ' + dongne[0].find('wdkor').text + u"풍\n"\
                             u'습도 : ' + dongne[0].find('reh').text + u"%\n"\
                             u'강수 확률 : ' + dongne[0].find('pop').text + u"%\n"
             
