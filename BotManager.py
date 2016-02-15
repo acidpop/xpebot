@@ -278,6 +278,7 @@ class BOTManager(telepot.helper.UserHandler):
             log.debug('Wait Timeout')
             if self.cur_mode != '':
                 self.sender.sendMessage('입력 시간이 초과 되었습니다', reply_markup=self.hide_keyboard)
+                self.cur_mode = ''
         else:
             log.error('on_close - exception :')
             log.error(exception)
