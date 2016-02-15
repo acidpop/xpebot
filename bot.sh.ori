@@ -2,8 +2,8 @@
 
 DSM_ACCOUNT="admin"
 PYTHON_PATH="/usr/bin/python"
-XPEBOT_MAIN="/volume1/homes/$DSM_ACCOUNT/xpebot/main.py"
-XPEBOT_CFG_PATH="/volume1/homes/$DSM_ACCOUNT/xpebot/xpebot.cfg"
+XPEBOT_MAIN="/var/services/homes/$DSM_ACCOUNT/xpebot/main.py"
+XPEBOT_CFG_PATH="/var/services/homes/$DSM_ACCOUNT/xpebot/xpebot.cfg"
 
 function ProcChk()
 {

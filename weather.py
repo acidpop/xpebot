@@ -75,6 +75,7 @@ class weather(object):
         cursor.execute(query)
         rowdata = cursor.fetchall()
 
+        
         before_sido = ''
 
         # 동네 이름이 여러개 있을 경우 모두 출력
@@ -110,9 +111,12 @@ class weather(object):
 
             sender.sendMessage(weather_info, reply_markup=hide_keyboard) 
 
-        # 시도별 날씨 요약본 가져 오기
-        today, tomorrow = self.GetWeatherSummary(sido)
-        sender.sendMessage(today, reply_markup=hide_keyboard)
+            # 시도별 날씨 요약본 가져 오기
+            if before_sido != sido:
+                today, tomorrow = self.GetWeatherSummary(sido)
+                sender.sendMessage(today, reply_markup=hide_keyboard)
+
+            before_sido = sido
         
         cursor.close()
         db.close()

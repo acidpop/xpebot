@@ -10,6 +10,13 @@ http://blog.acidpop.kr/214
 
 ### 변경 내역
 
+**0.3 (2016-02-15)**
+- bot.sh 에서 실행 경로 변경(/volume1/homes -> /var/service/homes)
+- 날씨 정보 조회시 시,도,구가 다르고 동 이름이 같을 경우 요약 정보를 잘 못 보내던 문제 수정
+
+bot.sh.ori 파일이 업데이트 되었습니다.
+
+
 **0.2 (2016-02-13)**
 - RSS 뉴스 리더 기능 추가
 - NAS 의 시스템 리소스 조회 기능 추가(cpu, ram, disk)
@@ -60,7 +67,7 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
     (5.2-5644 기준으로 ID 는 'root' 암호는 관리자 계정(admin)의 암호이다) 
 
 5. SSH로 접속 하였다면 자신의 홈 디렉토리로 이동한다. 
-    cd /volume1/homes/{자신의계정}
+    cd /var/services/homes/{자신의계정}
     
 6. xpebot 을 설치 한다.
 
