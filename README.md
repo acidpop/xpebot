@@ -59,7 +59,9 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
 2. Download Station 을 실행 하여 대상 경로를 설정 한다.
 
 3. DSM 의 제어판에서 터미널 및 SNMP 항목을 클릭 후 "SSH 서비스 활성화"를 체크한다.
+
    제어판에서 사용자 항목으로 이동 후 고급 탭에서 "사용자 홈 서비스 활성화"를 체크한다.
+
    적용 버튼을 누른다. 
 
 4. SSH 접속 툴(putty 또는 xshell등)을 이용하여 XPEnology IP 주소로 접속한다.
@@ -67,6 +69,7 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
     (5.2-5644 기준으로 ID 는 'root' 암호는 관리자 계정(admin)의 암호이다) 
 
 5. SSH로 접속 하였다면 자신의 홈 디렉토리로 이동한다. 
+
     cd /var/services/homes/{자신의계정}
     
 6. xpebot 을 설치 한다.
