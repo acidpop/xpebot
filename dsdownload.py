@@ -366,7 +366,7 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                         total_size = CommonUtil.hbytes(row[4])
 
                         # bot.sendMessage(24501560, "<b>Bold Text</b>\n<pre color='blue'>Test Message</pre>\nHTML Mode", parse_mode='HTML')
-                        msg = '*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s' % (status, tor_name, total_size, username)
+                        msg = """*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s""" % (status, tor_name, total_size, username)
                         
                         
                         self.bot.sendMessage(self.chat_id, msg, parse_mode='Markdown')
