@@ -54,10 +54,15 @@ class TorrentManager(object):
 
         log.info('DS Torrent download')
 
+        if type(selected) is int == False:
+            log.info('Torrent Download, Selected number type is not int!')
+            bot.sendMessage(chat_id, u'입력값 오류') 
+            return False
+
         ret, items = ds.db_query("SELECT * FROM USER_SETTING WHERE username='" + self.dsm_id + "';")
         if ret == False:
             log.info('DS Download User Setting not found..')
-            return
+            return False
 
         ds_user = items[0][0]
         sh_dir = items[0][2]
@@ -81,6 +86,7 @@ class TorrentManager(object):
         else:
             bot.sendMessage(chat_id, u'다운로드 실패', reply_markup=hide_keyboard) 
 
+        return True
 
     def ReceiveTorrentFile(self, fileid, file_name, file_ext, file_type, bot, chat_id):
         watch_dir = main.botConfig.GetTorrentWatchDir()
