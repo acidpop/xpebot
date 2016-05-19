@@ -1,14 +1,39 @@
 **bot.sh.ori, xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 '복사' 하셔서 사용하세요 안그러면 소스 업데이트가 안됩니다.**
 
-------
-
-**3시간 정도 사용 안할 때 BOT이 응답이 없는 문제는 아래 링크를 통해 임시로 해결 하실 수 있습니다**
-
-http://blog.acidpop.kr/214
 
 ------
 
 ### 변경 내역
+
+**0.4 (2016-05-19)**
+- 다음 패키지를 설치 해야 합니다. pip install Pillow
+- Telepot 8.0 (BOT API 2.0) 에 맞춰 업데이트 하였습니다.  easy_install --upgrade telepot 명령을 이용하여 기존 telepot 사용자는 업데이트 하셔야 합니다. telepot 6.x 이하는 사용 불가
+- torrent 파일 전송시 Watch Directory 에 파일을 다운로드 합니다. cfg 파일에서 watch_dir 키에 watch_directory 경로를 입력하세요.
+- /airkorea - 미세 먼지 조회기능 추가 (data.go.kr 에서 '대기오염정보 조회' API에 대해 활용 신청 후 서비스 키가 필요합니다.)
+- /torkim 추가 - TorrentKim 에서 Magnet 이 아닌 Torrent 파일을 검색하여 Watch Directory에 다운로드 하는 기능, 추천 수를 표시합니다 (TorrentKim 사정에 의해 작동이 안될 수 있습니다)
+- /gettorrent 추가 - TorrentKim 에서 Magnet 이 아닌 Torrent 파일을 검색하여 사용자에게 파일을 전송 하는 기능 (TorrentKim 사정에 의해 작동이 안될 수 있습니다)
+- /namuwiki - 나무 위키에서 키워드를 검색하여 해당 문서 링크를 찾아 주는 기능
+
+/torkim, /gettorrent 명령은 이번에 추가된 BOT API 2.0 을 사용합니다. Inline Keyboard 를 이용하여 사용자에게 선택 버튼을 제공합니다.
+
+xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
+
+다시 복사 하셔서 사용하세요
+
+내부적으로 사용하는 File DB가 업데이트 되었습니다.
+
+tgbot.db 파일을 다른 이름으로 변경 후에 git 소스를 업데이트 하셔야 합니다.
+
+기존에 등록된 WOL 데이터를 다시 등록 하셔야 합니다.
+
+입력 시간 초과 기능은 삭제 되었습니다.
+
+0.4 버전에서 Telepot 8.0 버전을 지원하며 새로운 기능들이 추가 되어서 작동이 안될 수 있습니다.
+
+문의 사항이 있으시면 http://blog.acidpop.kr/notice/225 블로그 또는 github 의 issue 를 이용하여주세요.
+
+
+
 
 **0.3 (2016-02-15)**
 - bot.sh 에서 실행 경로 변경(/volume1/homes -> /var/service/homes)
@@ -85,12 +110,14 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
     5) pip install BeautifulSoup
    
     6) pip install psycopg2
+    
+    7) pip install Pillow
    
-    7) cd xpebot
+    8) cd xpebot
     
-    8) cp bot.sh.ori bot.sh
+    9) cp bot.sh.ori bot.sh
     
-    9) cp xpebot.cfg.ori xpebot.cfg
+    10) cp xpebot.cfg.ori xpebot.cfg
 
     **bot.sh.ori 파일과 xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 복사 하여 사용**
 
@@ -111,6 +138,8 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
 	5) NAVER_API 섹션에 발급 받은 CLIENT_ID_KEY 값과 CLIENT_SECRET_KEY 값을 입력한다.
 
 	6) RSS_NEWS 섹션에 보고 싶은 뉴스의 RSS 주소를 입력한다.
+    
+    7) DATA 섹션에 data.go.kr 에서 발급 받은 서비스 키를 입력한다.
 
  
 
@@ -141,11 +170,18 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
 
     ```
     torrentsearch - 토렌트 검색
-    weather - 날씨 검색
-    wol - WOL
-    addwol - WOL 장비 추가
-    delwol - WOL 장비 삭제
-    cancel - 모드 취소
+    weather - 동네 날씨 또는 전국 날씨 요약 정보 조회
+    wol - Wake On Lan 기능
+    systeminfo - NAS System 리소스 조회
+    en2ko - 영어 문장을 한글로 기계 번역
+    ko2en - 한글 문장을 영어로 기계 번역
+    shorturl - url 을 짧게 줄여주는 기능
+    txt2voice - 한글 문장을 음성으로 변환
+    news - RSS 뉴스 URL 조회
+    airkorea - 통합대기 지수 조회
+    namuwiki - Namu Wiki 조회
+    torkim - TorrentKim 조회
+	gettorrent - TorrentKim 조회 후 토렌트 파일 다운로드
     help - 도움말
     ```
 
@@ -158,6 +194,12 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
   
 **/torrentsearch**
 - 토렌트 검색
+
+**/torkim**
+- Torrent Kim 조회
+
+**/gettorrent**
+- Torrent Kim 조회 후 Torrent 파일 받기
 
 **/weather**
 - 동네 날씨 또는 전국 날씨 요약 정보 조회
@@ -182,6 +224,15 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
 
 **/shorturl**
 - url 을 짧게 줄여주는 기능 (Naver Developers 에 등록된 키가 있어야 함)
+
+**/txt2voice**
+- 한글 문장을 음성으로 변환
+
+**/airkorea**
+- 통합대기 지수 조회 (data.go.kr 에서 대기오염정보 조회 API 서비스 키가 필요 함)
+
+**/namuwiki**
+- Namu Wiki 조회
 
 **/news**
 - RSS 뉴스 URL 조회

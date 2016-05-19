@@ -2,7 +2,10 @@
 
 import main
 import cmdutil
+import time
 import json
+import os
+import requests
 from LogManager import log
 
 
@@ -15,15 +18,28 @@ class NaverApi(object):
     naver_client_id = main.botConfig.GetNaverClientId()
     naver_client_secret = main.botConfig.GetNaverClientSecret()
 
-    def TranslateEn2Ko(self, text, sender):
+    def TranslateEn2Ko(self, text, bot, chat_id):
 
         if self.naver_api_use == False:
             return 'Not Support'
 
         text = text.replace('"', '\\"')
         
-        cmd = 'curl -s -k -H "X-Naver-Client-Id: %s" -H "X-Naver-Client-Secret: %s" -d "source=en" -d "target=ko" -d "text=%s" https://openapi.naver.com/v1/language/translate' % (self.naver_client_id, self.naver_client_secret, text)
-        log.info('Naver API TranslateEn2Ko Command : %s', cmd)
+        data = {'source' : 'en',
+                'target' : 'ko',
+                'text' : text}
+        header = {'X-Naver-Client-Id': self.naver_client_id,
+                  'X-Naver-Client-Secret': self.naver_client_secret
+                  }
+
+        req_data = requests.post('https://openapi.naver.com/v1/language/translate', data=data, headers=header)
+
+        if req_data.status != 200:
+            log.info('TranslateEn2Ko Requests error:%d, text:%s' % req_data.status, text)
+            return
+
+        response_json = req_data.content
+
         response_json = cmdutil.ExecuteCommand(cmd.encode('utf-8'))
 
         response = json.loads(response_json.decode('utf-8'))
@@ -35,19 +51,32 @@ class NaverApi(object):
             log.info('Translate Fail')
             log.info(response_json)
             translateText = response['errorMessage']
+
+        bot.sendMessage(chat_id, translateText)
         
-        return translateText
+        return
 
 
-    def TranslateKo2En(self, text, sender):
+    def TranslateKo2En(self, text, bot, chat_id):
         if self.naver_api_use == False:
             return 'Not Support'
 
         text = text.replace('"', '\\"')
 
-        cmd = 'curl -s -k -H "X-Naver-Client-Id: %s" -H "X-Naver-Client-Secret: %s" -d "source=ko" -d "target=en" -d "text=%s" https://openapi.naver.com/v1/language/translate' % (self.naver_client_id, self.naver_client_secret, text)
-        log.info('Naver API TranslateKo2En Command : %s', cmd)
-        response_json = cmdutil.ExecuteCommand(cmd.encode('utf-8'))
+        data = {'source' : 'ko',
+                'target' : 'en',
+                'text' : text}
+        header = {'X-Naver-Client-Id': self.naver_client_id,
+                  'X-Naver-Client-Secret': self.naver_client_secret
+                  }
+
+        req_data = requests.post('https://openapi.naver.com/v1/language/translate', data=data, headers=header)
+
+        if req_data.status != 200:
+            log.info('TranslateKo2En Requests error:%d, text:%s' % req_data.status, text)
+            return
+
+        response_json = req_data.content
 
         response = json.loads(response_json.decode('utf-8'))
 
@@ -59,17 +88,25 @@ class NaverApi(object):
             log.info(response_json)
             translateText = response['errorMessage']
         
-        return translateText
+        bot.sendMessage(chat_id, translateText)
+        return
 
-    def ShortUrl(self, url, sender):
-        # curl -s -k -H "X-Naver-Client-Id: YLjsWM1fVoSKeTsJpYu0" -H "X-Naver-Client-Secret: xjQFC37UAJ" -d "url=%s" https://openapi.naver.com/v1/util/shorturl
-        # {message=ok, result={hash=GNALNDIU, url=http://me2.do/GNALNDIU, orgUrl=https://github.com/nickoala/telepot/blob/master/examples/emodi.py}, code=200}
+    def ShortUrl(self, url, bot, chat_id):
         if self.naver_api_use == False:
             return 'Not Support'
 
-        cmd = 'curl -s -k -H "X-Naver-Client-Id: %s" -H "X-Naver-Client-Secret: %s" -d "url=%s" https://openapi.naver.com/v1/util/shorturl.json' % (self.naver_client_id, self.naver_client_secret, url)
-        log.info('Naver API ShortUrl Command : %s', cmd)
-        response_json = cmdutil.ExecuteCommand(cmd.encode('utf-8'))
+        data = {'url' : url}
+        header = {'X-Naver-Client-Id': self.naver_client_id,
+                  'X-Naver-Client-Secret': self.naver_client_secret
+                  }
+
+        req_data = requests.post('https://openapi.naver.com/v1/util/shorturl', data=data, headers=header)
+
+        if req_data.status != 200:
+            log.info('ShortUrl Requests error:%d, url:%s' % req_data.status, url)
+            return
+
+        response_json = req_data.content
 
         log.info('Naver API ShortUrl Response : %s', response_json)
         response = json.loads(response_json)
@@ -81,5 +118,38 @@ class NaverApi(object):
 
         log.info('Naver API ShortUrl Result : %s', short_url)
         
-        return short_url
+        bot.sendMessage(chat_id, short_url)
+        return
+
+
+    def TextToVoice(self, text, bot, chat_id):
+        headers = {'X-Naver-Client-Id' : self.naver_client_id, 'X-Naver-Client-Secret' : self.naver_client_secret}
+        # mijin:미진(한국어, 여성)
+        # jinho:진호(한국어, 남성)
+        # clara:클라라(영어, 여성)
+        # matt:매튜(영어, 남성)
+        # yuri:유리(일본어, 여성)
+        # shinji:신지(일본어, 남성)
+        # meimei:메이메이(중국어, 여성)
+
+        # -5 ~ 5 사이 정수로 -5면 0.5배 빠른, 5면 0.5배 느린, 0이면 정상 속도
+        data = {'speaker': 'mijin', 'speed': 0, 'text': text}
+
+        r = requests.post('https://openapi.naver.com/v1/voice/tts.bin', data = data, headers = headers)
+
+        now = time.localtime()
+        fname = '/tmp/%d%02d%02d%02d%02d%02d' % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec)
+
+        f = open(fname, 'wb')
+        f.write(r.content)
+        f.close()
+        
+        response = bot.sendVoice(chat_id, open(fname, 'rb'))
+
+        log.info('TextToVoice, len:%d', len(r.content))
+
+        #os.remove(fname)
+
+        return response['voice']['file_id']
+
 

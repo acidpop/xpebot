@@ -59,7 +59,7 @@ class weather(object):
         return today_summary, tomorrow_summary
 
 
-    def GetDongneWether(self, sender, dongne_name):
+    def GetDongneWether(self, bot, chat_id, dongne_name):
         query = u"select code, sido, gugun, dong from kma_dongne where dong like '%" + dongne_name + "%';"
         log.debug(query)
 
@@ -67,7 +67,7 @@ class weather(object):
 
         if dongne_name == u'전국 날씨':
             today, tomorrow = self.GetWeatherSummary(u'전국날씨')
-            sender.sendMessage(today, reply_markup=hide_keyboard) 
+            bot.sendMessage(chat_id, today, reply_markup=hide_keyboard) 
             return
             
         db = sqlite3.connect(self.db_path)
@@ -109,12 +109,12 @@ class weather(object):
             sp.close()
             data.close()
 
-            sender.sendMessage(weather_info, reply_markup=hide_keyboard) 
+            bot.sendMessage(chat_id, weather_info, reply_markup=hide_keyboard) 
 
             # 시도별 날씨 요약본 가져 오기
             if before_sido != sido:
                 today, tomorrow = self.GetWeatherSummary(sido)
-                sender.sendMessage(today, reply_markup=hide_keyboard)
+                bot.sendMessage(chat_id, today, reply_markup=hide_keyboard)
 
             before_sido = sido
         

@@ -15,6 +15,9 @@ class BotConfig(object):
     dsm_id = ""
     bot_token = ""
     valid_user_list = None
+    
+    watch_dir = ""
+    
     log_path = ""
     log_size = 0
     log_count = 0
@@ -28,6 +31,9 @@ class BotConfig(object):
     # Rss New Url
     rss_news_url = ''
     rss_news_count = 10
+    
+    # data.go.kr Service Key
+    data_service_key = ''
 
     host_name = ''
 
@@ -45,6 +51,9 @@ class BotConfig(object):
         if temp_valid_user.find(',') == -1:
             temp_valid_user += ', '
         self.valid_user_list = eval(temp_valid_user)
+        
+        self.watch_dir = config.get('TELEGRAM', 'WATCH_DIR')
+        
         self.log_path = config.get('TELEGRAM', 'LOG_PATH')
         self.log_size = config.getint('TELEGRAM', 'LOG_MAX_SIZE')
         self.log_count = config.getint('TELEGRAM', 'LOG_COUNT')
@@ -58,6 +67,9 @@ class BotConfig(object):
         # RSS News
         self.rss_news_url = config.get('RSS_NEWS', 'RSS_URL')
         self.rss_news_count = config.getint('RSS_NEWS', 'RSS_COUNT')
+        
+        # data.go.kr Service Key
+        self.data_service_key = config.get('DATA', 'SERVICE_KEY')
 
         temp_path = os.path.split(sys.argv[0])
         self.execute_path = temp_path[0]
@@ -75,6 +87,9 @@ class BotConfig(object):
 
     def GetValidUser(self):
         return self.valid_user_list
+
+    def GetTorrentWatchDir(self):
+        return self.watch_dir
 
     def GetLogPath(self):
         return self.log_path
@@ -102,6 +117,9 @@ class BotConfig(object):
 
     def GetRssNewsCount(self):
         return self.rss_news_count
+        
+    def GetDataServiceKey(self):
+        return self.data_service_key
 
     def GetHostName(self):
         return self.host_name

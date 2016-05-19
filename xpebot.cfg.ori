@@ -9,6 +9,9 @@ BOT_TOKEN		= 12345678:AAAaaa-xxLkmnjuRTjh_n59dJUGYh8a31vu
 # 등록된 사용자 목록(, 로 구분하여 여러명 등록)
 VALID_USER		= 12345678, 87654321
 
+# Torrent Watch Directory Path
+WATCH_DIR       = Download Station Watch Directory Path (ex : /volmue1/download/watch/ )
+
 # Python BOT 의 로그 경로
 LOG_PATH		= /var/log/xpebot.log
 # 로그 파일의 최대 크기(MB단위)
@@ -27,3 +30,8 @@ CLIENT_SECRET_KEY	= Naver API Secret Key
 RSS_URL			= http://media.daum.net/syndication/today_sisa.rss
 # NEWS 최대 개수
 RSS_COUNT		= 20
+
+[DATA]
+# data.go.kr 의 API 계정 서비스 Key
+# https://www.data.go.kr/subMain.jsp?param=T1BFTkFQSUAxNTAwMDU4MQ==#/L3B1YnIvdXNlL3ByaS9Jcm9zT3BlbkFwaURldGFpbC9vcGVuQXBpTGlzdFBhZ2UuZG8kQF4wMTJtMSRAXnB1YmxpY0RhdGFQaz0xNTAwMDU4MSRAXmJybUNkPU9DMDAxMiRAXnJlcXVlc3RDb3VudD0xNzA0JEBeb3JnSW5kZXg9T1BFTkFQSQ==
+SERVICE_KEY     = data.go.kr 의 '대기오염정보 조회' API에서 발급된 서비스 키

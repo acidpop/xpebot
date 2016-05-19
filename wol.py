@@ -61,11 +61,11 @@ class wol(object):
 
         return True
 
-    def RegiDevice(self, command, sender):
+    def RegiDevice(self, command, bot, chat_id):
         # Command 를 ',' 로 파싱하여 AddDevice
         parts = command.split(",")
         if len(parts) <= 0 or len(parts) > 3:
-            sender.sendMessage(u'형식이 맞지 않습니다')
+            bot.sendMessage(chat_id, u'형식이 맞지 않습니다')
             return False
         
         MAC = parts[0].strip()
@@ -76,17 +76,17 @@ class wol(object):
             BroadAddr = '192.168.0.255'
             
         if self.AddDevice(MAC, DevName, BroadAddr):
-            sender.sendMessage(u'등록 되었습니다')
+            bot.sendMessage(chat_id, u'등록 되었습니다')
         else:
-            sender.sendMessage(u'등록 실패')
+            bot.sendMessage(chat_id, u'등록 실패')
 
         return True
 
-    def UnregiDevice(self, SelectDevice, sender):
+    def UnregiDevice(self, SelectDevice, bot, chat_id):
         items = SelectDevice.split("|")
 
         if len(items) < 2:
-            sender.sendMessage(u'형식이 잘못 되었습니다')
+            bot.sendMessage(chat_id, u'형식이 잘못 되었습니다')
             return
 
         DevName = items[0].strip()
@@ -102,12 +102,12 @@ class wol(object):
 
         hide_keyboard = {'hide_keyboard': True}
         msg = SelectDevice + u' WOL Device 삭제 완료'
-        sender.sendMessage(msg, reply_markup=hide_keyboard)
+        bot.sendMessage(chat_id, msg, reply_markup=hide_keyboard)
 
         log.info("WOL Delete Device, MAC[%s], Name[%s]", MAC, DevName)
 
 
-    def ShowWOLDeviceList(self, sendMsg, sender):
+    def ShowWOLDeviceList(self, sendMsg, bot, chat_id):
         db = sqlite3.connect(self.db_path)
         cursor = db.cursor()
         query = "SELECT * FROM WOL_DEVICE;"
@@ -116,7 +116,7 @@ class wol(object):
         rowdata = cursor.fetchall()
 
         if len(rowdata) == 0:
-            self.sender.sendMessage(u'WOL - 등록 된 Device가 없습니다')
+            bot.sendMessage(chat_id, u'WOL - 등록 된 Device가 없습니다')
         else:
             outList = []
             # TABLE : IDX[0], MAC[1], DEVNAME[2], BROADCAST_ADDR[3], REG_DATE[4]
@@ -127,12 +127,12 @@ class wol(object):
                 outList.append(templist)
 
             wol_keyboard = {'keyboard': outList, 'resize_keyboard': True}
-            sender.sendMessage(sendMsg, reply_markup=wol_keyboard)
+            bot.sendMessage(chat_id, sendMsg, reply_markup=wol_keyboard)
 
         cursor.close()
         db.close()
 
-    def WOLDevice(self, SelectDevice, sender):
+    def WOLDevice(self, SelectDevice, bot, chat_id):
 
         items = SelectDevice.split("|")
         DevName = items[0].strip()
@@ -147,7 +147,7 @@ class wol(object):
 
         row = cursor.fetchone()
         if len(row) == 0:
-            sender.sendMessage(u'없는 Device', reply_markup=hide_keyboard)
+            bot.sendMessage(chat_id, u'없는 Device', reply_markup=hide_keyboard)
         else:
             WOL_MAC = row[1]
             WOL_DEV_NAME = row[2]
@@ -155,7 +155,7 @@ class wol(object):
             #def WakeOnLan(self, MAC, BroadCastAddr="192.168.0.1", port=9):
             self.WakeOnLan(WOL_MAC, WOL_BROAD_ADDR)
             msg = u'WOL 요청 완료 - %s' % (WOL_DEV_NAME)
-            sender.sendMessage(msg, reply_markup=hide_keyboard)
+            bot.sendMessage(chat_id, msg, reply_markup=hide_keyboard)
         
         cursor.close()
         db.close()

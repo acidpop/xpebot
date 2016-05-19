@@ -18,15 +18,15 @@ class TorrentManager(object):
 
     dsm_id = main.botConfig.GetDsmId()
 
-    def tor_search(self, keyword, sender):
-        sender.sendMessage('토렌트 검색 중...')
+    def tor_search(self, keyword, bot, chat_id):
+        bot.sendMessage(chat_id, '토렌트 검색 중...')
         self.navi = feedparser.parse(self.rssUrl+keyword.encode('utf-8'))
 
         outList = []
         show_keyboard = {'keyboard': "not found"}
 
         if not self.navi.entries:
-            sender.sendMessage('검색결과가 없습니다. 다시 입력하세요.')
+            bot.sendMessage(chat_id, '검색결과가 없습니다. 다시 입력하세요.')
             #print('검색결과가 없습니다. 다시 입력하세요.')
             return False
 
@@ -44,12 +44,12 @@ class TorrentManager(object):
 
         show_keyboard = {'keyboard': outList, 'resize_keyboard': True}
 
-        sender.sendMessage('받을 Torrent를 선택 하세요')
-        sender.sendMessage(title_list, reply_markup=show_keyboard)
+        bot.sendMessage(chat_id, '받을 Torrent를 선택 하세요')
+        bot.sendMessage(chat_id, title_list, reply_markup=show_keyboard)
 
         return True
 
-    def torrent_download(self, selected, sender):
+    def torrent_download(self, selected, bot, chat_id):
         ds = dsdownload.dsdownload()
 
         log.info('DS Torrent download')
@@ -76,13 +76,14 @@ class TorrentManager(object):
         hide_keyboard = {'hide_keyboard': True}
         if ret == True:
             msg = self.navi.entries[index].title + u' 다운로드를 시작합니다'
-            sender.sendMessage(msg, reply_markup=hide_keyboard) 
+            bot.sendMessage(chat_id, msg, reply_markup=hide_keyboard) 
             self.navi.clear()
         else:
-            sender.sendMessage(u'다운로드 실패', reply_markup=hide_keyboard) 
+            bot.sendMessage(chat_id, u'다운로드 실패', reply_markup=hide_keyboard) 
 
 
-    def ReceiveTorrentFile(self, fileid, file_name, file_ext, sender):
+    def ReceiveTorrentFile(self, fileid, file_name, file_ext, file_type, bot, chat_id):
+        watch_dir = main.botConfig.GetTorrentWatchDir()
         filename = file_name + "." + file_ext
 
         ds = dsdownload.dsdownload()
@@ -95,13 +96,17 @@ class TorrentManager(object):
             return
 
         ds_user = items[0][0]
-        watch_dir = items[0][5]
+        #watch_dir = items[0][5]
 
         log.info('ReceiveTorrentFile, ds_user:%s, Watch:%s', ds_user, watch_dir)
 
-        main.bot.downloadFile(fileid, '/volume1/download/torrent_watch')
-
+        bot.download_file(fileid, watch_dir + file_name.encode('utf-8') )
+        
         log.info('%s download success', filename)
+
+        hide_keyboard = {'hide_keyboard': True}
+        #msg = file_name + ' 파일을 ' + watch_dir + ' 경로에 다운로드 하였습니다';
+        #bot.sendMessage(chat_id, msg, reply_markup=hide_keyboard) 
 
         return True
 

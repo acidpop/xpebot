@@ -110,85 +110,7 @@ class dsdownload(object):
 
         return False
 
-    def dsdownload_register_monitor_query(self, sender):
-        sender.sendMessage('DS Download 모니터 등록을 시도 합니다')
-        query = """CREATE TABLE btdownload_event(
-    task_id           integer   NOT NULL,
-    username          character varying(128),
-    filename          text,
-    status            integer,
-    total_size        bigint,
-    isread            integer,
-    create_time       date
-);
-CREATE OR REPLACE FUNCTION process_btdownload_event() RETURNS TRIGGER AS $btdownload_event$
-    DECLARE
-        rec_count integer;
-    BEGIN
-        IF (TG_OP = 'INSERT') THEN
-            RETURN NEW;
-        ELSIF (TG_OP = 'UPDATE') THEN
-            IF (NEW.status = 2 AND NEW.total_size > 0 AND NEW.current_size > 0) THEN
-                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 2;
-                IF ( rec_count = 0 ) THEN
-                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
-                END IF;
-            ELSIF (NEW.status = 5 ) THEN
-                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 5;
-                IF ( rec_count = 0 ) THEN
-                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
-                END IF;
-            ELSIF (NEW.status = 118) THEN
-                UPDATE download_queue SET status = 5, extra_info = '' WHERE task_id = NEW.task_id;
-                DELETE FROM task_plugin WHERE task_id = NEW.task_id;
-                DELETE FROM thumbnail WHERE task_id = NEW.task_id;
-            END IF;
-            RETURN NEW;
-        ELSIF (TG_OP = 'DELETE') THEN
-                DELETE FROM btdownload_event WHERE task_id = OLD.task_id;
-            RETURN OLD;
-        END IF;
-        RETURN NULL;
-    END;
-$btdownload_event$ LANGUAGE plpgsql;
- 
-CREATE TRIGGER btdownload_event
-AFTER INSERT OR UPDATE OR DELETE ON download_queue
-FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
-
-        conn_string = "host='localhost' dbname='download' user='postgres' password=''"
-
-        try:
-            monitor_conn = psycopg2.connect(conn_string)
-            monitor_conn.autocommit = True
-            monitor_curs = monitor_conn.cursor()
-
-            log.debug('dsdownload monitor query execute')
-            monitor_curs.execute(query)
-            log.debug('dsdownload monitor query execute success')
-
-            monitor_curs.close()
-            monitor_conn.close()
-
-            sender.sendMessage('DS Download 모니터가 등록 되었습니다')
-        except psycopg2.IntegrityError as err:
-            if err.pgcode != '23505':
-                log.error('DB IntegrityError : %s',  err)
-            else:
-                log.error('DB Not Intergrity Error : %s', err)
-        except Exception as err:
-            log.error('DB Exception : %s',  err)
-            if str.find(err.pgerror, "already exists") > 0:
-                sender.sendMessage('DS Download 모니터가 이미 등록 되어 있습니다')
-            else:
-                sender.sendMessage('DS Download 모니터 등록에 실패 하였습니다')
-        except:
-            log.error("psycopg except : " + e)
-            sender.sendMessage('DS Download 모니터 등록에 실패 하였습니다')
-        finally:
-            monitor_curs.close()
-            monitor_conn.close()
-
+    
 
     def CreateMonitorTable(self):
         
@@ -345,6 +267,15 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
             log.info('CheckDownloadMonitorTable exit...')
             return
 
+    def PrintException(self):
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        #print 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
+        log.info('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
 
     def download_db_timer(self):
         ret = True
@@ -366,7 +297,7 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                         total_size = CommonUtil.hbytes(row[4])
 
                         # bot.sendMessage(24501560, "<b>Bold Text</b>\n<pre color='blue'>Test Message</pre>\nHTML Mode", parse_mode='HTML')
-                        msg = """*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s""" % (status, tor_name, total_size, username)
+                        msg = '*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s' % (status, tor_name, total_size, username)
                         
                         
                         self.bot.sendMessage(self.chat_id, msg, parse_mode='Markdown')
