@@ -1,6 +1,13 @@
 **bot.sh.ori, xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 '복사' 하셔서 사용하세요 안그러면 소스 업데이트가 안됩니다.**
 
+------
+XPEnology 에서 git 명령 실행시 
 
+fatal: Unable to find remote helper for 'https'
+
+위와 같은 오류가 나는 분들은 다음 글을 이용하여 해결이 될것으로 보입니다.
+
+http://blog.acidpop.kr/228
 ------
 
 ### 변경 내역
