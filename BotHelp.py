@@ -44,6 +44,9 @@ class BotHelp(object):
     - *Namu Wiki 조회*
 /help
     - *도움말*
+/cancel
+    - *모드취소*
+
 """
 
 

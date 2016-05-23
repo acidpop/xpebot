@@ -9,6 +9,7 @@ import telepot
 import urllib2
 import sqlite3
 import hashlib
+import traceback
 
 from LogManager import log
 
@@ -23,7 +24,29 @@ import main
 class TorrentKim(object):
     """description of class"""
 
-    db_path = main.botConfig.GetExecutePath() + "/tgbot.db"
+    db_path = main.botConfig.GetExecutePath() + "/cbbot.db"
+
+
+    def __init__(self):
+        # DB fail if not exists - Create DB
+        db = sqlite3.connect(self.db_path)
+        cursor = db.cursor()
+
+        query = """CREATE TABLE IF NOT EXISTS "TG_CB" (
+	                `ID`	TEXT NOT NULL,
+	                `TYPE`	INTEGER NOT NULL,
+	                `VALUE`	TEXT NOT NULL,
+	                PRIMARY KEY(ID)
+                );"""
+
+        log.info('TorKim Query : %s', query)
+        cursor.execute(query)
+        db.commit()
+
+        cursor.close()
+        db.close()
+        
+            
     
     def SearchTorrentKim(self, keyword, type=1, max_count=10, page_count = 2):
 
@@ -110,20 +133,30 @@ class TorrentKim(object):
 
     
     def GetTorrentFileLink(self, bbsUrl):
-        opener = urllib2.build_opener()
-        opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11')]
-        data = opener.open(bbsUrl)
-        sp = BeautifulSoup.BeautifulSoup(data)
+        try:
+            opener = urllib2.build_opener()
+            opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11')]
+            data = opener.open(bbsUrl)
+            sp = BeautifulSoup.BeautifulSoup(data)
         
-        ATags = sp.findAll('a', {'rel' : 'nofollow'})
-        fullLink = ATags[1]['href']
+            ATags = sp.findAll('a', {'rel' : 'nofollow'})
+            fullLink = ATags[1]['href']
 
-        start = fullLink.find("'")+1
-        end = fullLink.find("'", start)
+            start = fullLink.find("'")+1
+            end = fullLink.find("'", start)
     
-        fileLink = 'https://torrentkim3.net' + fullLink[start:end]
+            fileLink = 'https://torrentkim3.net' + fullLink[start:end]
 
-        torrentName = sp.find('div', {'id': 'writeContents'}).find('legend').text
+            torrentName = sp.find('div', {'id': 'writeContents'}).find('legend').text
+        except urllib2.HTTPError, e:
+            log.error("GetTorrentFileLink Fail, HTTPError:'%d', Except :'%s'", e.code, e)
+            return '', ''
+        except urllib2.URLError, e:
+            log.error("GetTorrentFileLink Fail, URLError:'%s', Except :'%s'", str(e.reason), e)
+            return '', ''
+        except httplib.HTTPException, e:
+            log.error("GetTorrentFileLink Fail, HTTP Exception :'%s'", str(e.reason), e)
+            return '', ''
     
         return fileLink, torrentName
     
@@ -131,6 +164,10 @@ class TorrentKim(object):
     def GetTorrentFile(self, bbsUrl):
         try:
             torrentUrl, torrentName = self.GetTorrentFileLink(bbsUrl)
+            if torrentUrl == '' or torrentName == '':
+                log.error("GetTorrentFile| GetTorrentFileLink Fail")
+                return False, ''
+
             r = requests.get(torrentUrl, stream=True, headers={'referer': bbsUrl})
     
             size = float(r.headers['content-length']) / 1024.0
@@ -141,7 +178,12 @@ class TorrentKim(object):
                     if chunk: 
                         f.write(chunk) 
                         f.flush() 
+        except requests.exceptions.RequestException as e: 
+            log.error('GetTorrentFile Fail, Request Exception : %s', e)
+            return False, ''
         except:
+            log.error("Get Torrent File Fail, url:'%s'", bbsUrl)
+            log.error("GetTorrentfile Exception : %s", traceback.format_exc())
             return False, ''
 
         return True, torrentName

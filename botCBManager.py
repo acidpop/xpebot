@@ -38,31 +38,32 @@ from LogManager import log
 
 class botCBManager(object):
 
-    db_path = main.botConfig.GetExecutePath() + "/tgbot.db"
+    callback_db_path = main.botConfig.GetExecutePath() + "/cbbot.db"
     watch_dir = main.botConfig.GetTorrentWatchDir()
 
+    torKim = TorrentKim.TorrentKim()
     """description of class"""
 
     def GetTypeValue(self, unique_id):
         query = "SELECT * FROM TG_CB WHERE ID = '%s';" % (unique_id)
-        log.info("CBParser - db_path:'%s', query:'%s'", self.db_path, query)
-        db = sqlite3.connect(self.db_path)
+        log.info("CBParser - callback_db_path:'%s', query:'%s'", self.callback_db_path, query)
+        db = sqlite3.connect(self.callback_db_path)
         cursor = db.cursor()
 
         cursor.execute(query)
 
         row = cursor.fetchone()
 
-        if len(row) == 0:
-            bot.sendMessage(chat_id, '해당 하는 데이터를 찾을 수 없습니다')
+        if row == None or len(row) == 0:
             cursor.close()
             db.close()
-            return False
+            log.info("GetTypeValue | Query result is 0")
+            return None, ''
         
         type = row[1]
         value = row[2]
 
-        log.info("CBParser - type:%d, value:'%s'", type, value)
+        log.info("GetTypeValue - type:%d, value:'%s'", type, value)
 
         cursor.close()
         db.close()
@@ -77,6 +78,10 @@ class botCBManager(object):
 
         type, value = self.GetTypeValue(unique_id)
 
+        if type == None:
+            bot.sendMessage(chat_id, '검색된 데이터가 없습니다\n다시 검색하여 주세요')
+            return False
+
         if typeFuncMap.get(type) == None:
             msg = '지원하지 않는 타입(%d) 입니다' % (type)
             bot.sendMessage(chat_id, msg)
@@ -88,7 +93,7 @@ class botCBManager(object):
 
         bot.sendMessage(chat_id, 'Torrent File 다운로드 시도')
 
-        result, fileName = TorrentKim.TorrentKim().GetTorrentFile(value)
+        result, fileName = self.torKim.GetTorrentFile(value)
 
         if result == False:
             log.error("url:'%s' Download Fail", value)
@@ -107,7 +112,7 @@ class botCBManager(object):
 
         bot.sendMessage(chat_id, 'Torrent File 다운로드 시도')
 
-        result, fileName = TorrentKim.TorrentKim().GetTorrentFile(value)
+        result, fileName = self.torKim.GetTorrentFile(value)
 
         if result == False:
             log.error("url:'%s' Download Fail", value)

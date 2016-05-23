@@ -250,7 +250,7 @@ class BOTManager(telepot.Bot):
                                            ['/wol', '/addwol', '/delwol'],
                                            ['/en2ko', '/ko2en', '/shorturl'],
                                            ['/news', '/airkorea', '/namuwiki'],
-                                           ['/torkim', '/help']
+                                           ['/torkim', '/help', '/cancel']
                                            ]}
             self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
             self.cur_mode = ''
