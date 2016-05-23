@@ -12,6 +12,14 @@ http://blog.acidpop.kr/228
 
 ### 변경 내역
 
+
+**0.4.1 (2016-05-23)**
+- tgbot.db 와 torrent 검색 결과를 저장하는 DB를 분리
+- Torrent 검색 기능 로그 상세화
+- /cancel 모드 도움말에 추가
+
+------
+
 **0.4 (2016-05-19)**
 - 다음 패키지를 설치 해야 합니다. pip install Pillow
 - Telepot 8.0 (BOT API 2.0) 에 맞춰 업데이트 하였습니다.  easy_install --upgrade telepot 명령을 이용하여 기존 telepot 사용자는 업데이트 하셔야 합니다. telepot 6.x 이하는 사용 불가
@@ -40,7 +48,7 @@ tgbot.db 파일을 다른 이름으로 변경 후에 git 소스를 업데이트 
 문의 사항이 있으시면 http://blog.acidpop.kr/notice/225 블로그 또는 github 의 issue 를 이용하여주세요.
 
 
-
+------
 
 **0.3 (2016-02-15)**
 - bot.sh 에서 실행 경로 변경(/volume1/homes -> /var/service/homes)
@@ -48,6 +56,7 @@ tgbot.db 파일을 다른 이름으로 변경 후에 git 소스를 업데이트 
 
 bot.sh.ori 파일이 업데이트 되었습니다.
 
+------
 
 **0.2 (2016-02-13)**
 - RSS 뉴스 리더 기능 추가
@@ -68,6 +77,7 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
 
 다시 복사 하셔서 사용하세요
 
+------
 
 **0.1 (2016-02-05)**
 
