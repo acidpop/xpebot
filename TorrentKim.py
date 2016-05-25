@@ -172,7 +172,7 @@ class TorrentKim(object):
     
             size = float(r.headers['content-length']) / 1024.0
     
-            with open(torrentName, 'wb') as f: 
+            with open(torrentName.encode('utf-8'), 'wb') as f: 
                 chunks = enumerate(r.iter_content(chunk_size=1024)) 
                 for index, chunk in chunks: 
                     if chunk: 
@@ -180,6 +180,7 @@ class TorrentKim(object):
                         f.flush() 
         except requests.exceptions.RequestException as e: 
             log.error('GetTorrentFile Fail, Request Exception : %s', e)
+            log.error("GetTorrentfile Exception : %s", traceback.format_exc())
             return False, ''
         except:
             log.error("Get Torrent File Fail, url:'%s'", bbsUrl)

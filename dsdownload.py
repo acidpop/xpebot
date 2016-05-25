@@ -3,6 +3,7 @@ import main
 import psycopg2
 import CommonUtil
 import telepot
+import traceback
 
 from LogManager import log
 
@@ -297,8 +298,12 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                         total_size = CommonUtil.hbytes(row[4])
 
                         # bot.sendMessage(24501560, "<b>Bold Text</b>\n<pre color='blue'>Test Message</pre>\nHTML Mode", parse_mode='HTML')
+                        # Markdown 문법에서 _ 는 * 로 대체 되므로 \_ 로 변경
+                        tor_name = tor_name.replace('_', '\_')
+                        # Markdown 문법에서 *는 MarkDown 문법을 시작하는 문자이므로 \* 로 변경
+                        tor_name = tor_name.replace('*', '\*')
+
                         msg = '*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s' % (status, tor_name, total_size, username)
-                        
                         
                         self.bot.sendMessage(self.chat_id, msg, parse_mode='Markdown')
 
@@ -314,6 +319,7 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                 self.curs = None
             except Exception as err:
                 log.error('download_db_timer|DB Exception : %s',  err)
+                log.error("download_db_timer Exception : %s", traceback.format_exc())
                 strErr = str(err.message)
                 log.error('error ---- %s, %d', strErr, strErr.find('relation "btdownload_event" does not exist'))
                 if strErr.find('relation "btdownload_event" does not exist') != -1:
