@@ -100,10 +100,10 @@ class botCBManager(object):
             bot.sendMessage(chat_id, 'Torrent File 다운로드 시도 실패')
             return False
 
-        log.info("File Move '%s' to '%s'", fileName, self.watch_dir)
-        shutil.move(fileName, self.watch_dir)
+        log.info("File Move '%s' to '%s'", fileName, self.watch_dir.decode('utf-8'))
+        shutil.move(fileName, self.watch_dir.decode('utf-8'))
 
-        msg = u'%s 파일을 watch 경로에 다운로드 하였습니다' % (fileName)
+        msg = u"%s 파일을\n'%s'\n경로에 다운로드 하였습니다" % (fileName, self.watch_dir.decode('utf-8'))
         bot.sendMessage(chat_id, msg)
 
         return True
@@ -119,9 +119,8 @@ class botCBManager(object):
             bot.sendMessage(chat_id, 'Torrent File 다운로드 시도 실패')
             return False
 
-        log.info("File Move '%s' to '%s'", fileName, self.watch_dir)
-        log.info("Torrent Kim File Download Success, File Name:'%s'", fileName)
+        log.info("Torrent Kim File Download Success, File Name:'%s'", fileName.encode('utf-8'))
 
-        bot.sendDocument(chat_id, open(fileName, 'rb'))
+        bot.sendDocument(chat_id, open(fileName.encode('utf-8'), 'rb'))
 
         return False
