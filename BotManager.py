@@ -256,6 +256,26 @@ class BOTManager(telepot.Bot):
             self.cur_mode = ''
 
 
+    def group_command_handler(self, command, chat_id):
+        log.info("Group Command Handler, Cmd:'%s', chat_id:'%s'", command, chat_id)
+        groupCmd = command
+        idx = groupCmd.rfind('@')
+        if idx >= 0:
+            groupCmd = groupCmd[:idx]
+
+        if groupCmd == '/cancel':
+            self.sendMessage(chat_id, '모드를 취소합니다', reply_markup=self.hide_keyboard)
+            self.cur_mode = ''
+            return
+
+        # cur_mode 가 존재 한다면 가장 앞의 / 기호 제거
+        if self.cur_mode:
+            groupCmd = groupCmd[1:]
+
+        self.command_handler(groupCmd, chat_id)
+
+        return groupCmd
+
     # 전송된 파일을 처리 하는 함수
     def file_handler(self, file_name, file_id, file_ext, file_type, chat_id):
         log.info('file_name:%s, id:%s, ext:%s', file_name, file_id, file_ext)
@@ -286,6 +306,9 @@ class BOTManager(telepot.Bot):
         timestr = time.strftime('%Y/%m/%d %H:%M:%S',  time.localtime(msg['date']))
         log.info('Recv Message : ' + json.dumps(msg,indent=4, ensure_ascii=False))
 
+    def PrintMsgCB(self, msg):
+        log.info('Recv Message : ' + json.dumps(msg,indent=4, ensure_ascii=False))
+
     def on_chat_message(self, msg):
 
         try:
@@ -306,9 +329,9 @@ class BOTManager(telepot.Bot):
 
             content_type, chat_type, chat_id = telepot.glance(msg)
 
-            log.info('ContentType : %s', content_type)
-            log.info('chat_type : %s', chat_type)
-            log.info('chat_id : %d', chat_id)
+            log.info("ContentType : '%s'", content_type)
+            log.info("chat_type : '%s'", chat_type)
+            log.info("chat_id : %d", chat_id)
 
             # Message to Log Write
             self.PrintMsg(msg)
@@ -317,6 +340,13 @@ class BOTManager(telepot.Bot):
             if not chat_id in self.valid_user:
                 log.info("Invalid user : %d", chat_id)
                 return
+
+            log.debug("chat_type:'%s'", chat_type)
+            if chat_type == 'group':
+                groupMsg = self.group_command_handler(unicode(msg['text']), chat_id)
+                log.info("Group Message : %s", groupMsg)
+                return
+
 
             if content_type is 'text':
                 self.command_handler(unicode(msg['text']), chat_id)
@@ -338,9 +368,19 @@ class BOTManager(telepot.Bot):
             
     def on_callback_query(self, msg):
         query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
+
+        self.PrintMsgCB(msg)
+
+        chat_id = 0
+
+        query_type = msg['message']['chat']['type']
+        if query_type == 'group':
+            chat_id = int(msg['message']['chat']['id'])
+        else:
+            chat_id = from_id
         
-        log.info("Callback Query - query Id:'%s', From:%d, query:'%s'", query_id, from_id, query_data)
-        self.CBMgr.CBParser(query_data, self, from_id)
+        log.info("Callback Query - query Id:'%s', cb_type:'%s', From:%d, chat_id:%d, query:'%s'", query_id, query_type, from_id, chat_id, query_data)
+        self.CBMgr.CBParser(query_data, self, chat_id)
         
     def on_inline_query(self, msg):
         query_id, from_id, query_string = telepot.glance(msg, flavor='inline_query')

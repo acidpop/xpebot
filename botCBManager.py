@@ -62,7 +62,7 @@ class botCBManager(object):
         
         type = row[1]
         value = row[2]
-
+        
         log.info("GetTypeValue - type:%d, value:'%s'", type, value)
 
         cursor.close()
@@ -119,8 +119,8 @@ class botCBManager(object):
             bot.sendMessage(chat_id, 'Torrent File 다운로드 시도 실패')
             return False
 
-        log.info("Torrent Kim File Download Success, File Name:'%s'", fileName.encode('utf-8'))
+        log.info("Torrent Kim File Download Success, File Name:'%s'", fileName)
 
-        bot.sendDocument(chat_id, open(fileName.encode('utf-8'), 'rb'))
+        bot.sendDocument(chat_id, open(fileName, 'rb'))
 
         return False
