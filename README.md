@@ -25,10 +25,10 @@ Group 대화방에 초대 후 /torrentserch@xpebot
 그룹 대화방에서 봇은 "/" Slash 가 앞에 있어야만 메시지를 받을 수 있다.
 
 ```
-사용자 : /torrentsearch@xpebot
-BOT    : 검색 할 Torrent 제목을 입력하세요
-사용자 : /다큐멘터리
-BOT    : 검색 결과 
+사용자	: /torrentsearch@xpebot
+BOT		: 검색 할 Torrent 제목을 입력하세요
+사용자	: /다큐멘터리
+BOT		: 검색 결과 
 ```
 
 위와 같은 방법으로 사용 가능하다.
