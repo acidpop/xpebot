@@ -16,13 +16,13 @@ http://blog.acidpop.kr/228
 
 Group 대화방에서 Bot 작동 할 수 있도록 추가 개발
 
-Group 대화방에 초대 후 /torrentserch@xpebot
+Group 대화방에 초대 후 /torrentsearch@xpebot
 
-형태로 커맨드를 보낸 후 /var/log/xpebot.log 를 확인 하면 Group 대화방의 Chat ID 가 보인다.
+형태로 커맨드를 보낸 후 /var/log/xpebot.log 를 확인 하면 Group 대화방의 chat id 확인 가능
 
-해당 Group ID 를 xpebot.cfg 의 invalid user 에 추가한다.
+해당 Group ID 를 xpebot.cfg 의 invalid user 에 추가
 
-그룹 대화방에서 봇은 "/" Slash 가 앞에 있어야만 메시지를 받을 수 있다.
+그룹 대화방에서 봇은 "/" Slash 가 앞에 있어야만 메시지를 받을 수 있습니다
 
 ```
 사용자	: /torrentsearch@xpebot
