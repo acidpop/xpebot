@@ -76,13 +76,13 @@ class BOTManager(telepot.Bot):
         
         return
 
-    def current_mode_handler(self, command, chat_id):
+    def current_mode_handler(self, command, chat_id, is_group_chat=False):
         log.info('current mode handler : ' +  self.cur_mode)
         
 
         # cur_mode == torrentsearch 이면 받은 command 를 Torrent Keywork 로 검색
         if self.cur_mode == 'torrentsearch':
-            result = self.tor.tor_search(command, self, chat_id)
+            result = self.tor.tor_search(command, self, chat_id, is_group_chat)
             if result == True:
                 self.cur_mode = 'torrent_list'
             else:
@@ -140,7 +140,7 @@ class BOTManager(telepot.Bot):
         return
     
     # 전송된 메시지를 처리 하는 함수
-    def command_handler(self, command, chat_id):
+    def command_handler(self, command, chat_id, is_group_chat=False):
         log.info("cmd_handle - Command[%s], cur_mode[%s]", command, self.cur_mode)
 
         if command == '/cancel':
@@ -159,7 +159,7 @@ class BOTManager(telepot.Bot):
             return
 
         if self.cur_mode:
-            self.current_mode_handler(command, chat_id)
+            self.current_mode_handler(command, chat_id, is_group_chat)
             return
 
         self.cur_mode = ''
@@ -172,7 +172,10 @@ class BOTManager(telepot.Bot):
         elif command == '/weather' or command == u'/날씨':
             log.info("cmd_handle : Weather")
             self.cur_mode = 'weather'
-            weather_keyboard = {'keyboard': [[u'전국 날씨']], 'resize_keyboard': True}
+            if( is_group_chat ):
+                weather_keyboard = {'keyboard': [[u'/전국 날씨']], 'resize_keyboard': True}
+            else:
+                weather_keyboard = {'keyboard': [[u'전국 날씨']], 'resize_keyboard': True}
             self.sendMessage(chat_id, u'전국 날씨 선택 또는 동네 이름을 입력하세요', reply_markup=weather_keyboard)
 
         elif command == '/wol':
@@ -272,7 +275,7 @@ class BOTManager(telepot.Bot):
         if self.cur_mode:
             groupCmd = groupCmd[1:]
 
-        self.command_handler(groupCmd, chat_id)
+        self.command_handler(groupCmd, chat_id, True)
 
         return groupCmd
 

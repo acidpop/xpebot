@@ -34,13 +34,11 @@ class NaverApi(object):
 
         req_data = requests.post('https://openapi.naver.com/v1/language/translate', data=data, headers=header)
 
-        if req_data.status != 200:
-            log.info('TranslateEn2Ko Requests error:%d, text:%s' % req_data.status, text)
+        if req_data.status_code != 200:
+            log.info('TranslateEn2Ko Requests error:%d, text:%s' % req_data.status_code, text)
             return
 
         response_json = req_data.content
-
-        response_json = cmdutil.ExecuteCommand(cmd.encode('utf-8'))
 
         response = json.loads(response_json.decode('utf-8'))
 
@@ -72,8 +70,8 @@ class NaverApi(object):
 
         req_data = requests.post('https://openapi.naver.com/v1/language/translate', data=data, headers=header)
 
-        if req_data.status != 200:
-            log.info('TranslateKo2En Requests error:%d, text:%s' % req_data.status, text)
+        if req_data.status_code != 200:
+            log.info('TranslateKo2En Requests error:%d, text:%s' % req_data.status_code, text)
             return
 
         response_json = req_data.content
@@ -102,8 +100,8 @@ class NaverApi(object):
 
         req_data = requests.post('https://openapi.naver.com/v1/util/shorturl', data=data, headers=header)
 
-        if req_data.status != 200:
-            log.info('ShortUrl Requests error:%d, url:%s' % req_data.status, url)
+        if req_data.status_code != 200:
+            log.info('ShortUrl Requests error:%d, url:%s' % req_data.status_code, url)
             return
 
         response_json = req_data.content

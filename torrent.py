@@ -18,12 +18,11 @@ class TorrentManager(object):
 
     dsm_id = main.botConfig.GetDsmId()
 
-    def tor_search(self, keyword, bot, chat_id):
+    def tor_search(self, keyword, bot, chat_id, is_group_chat=False):
         bot.sendMessage(chat_id, '토렌트 검색 중...')
         self.navi = feedparser.parse(self.rssUrl+keyword.encode('utf-8'))
 
         outList = []
-        show_keyboard = {'keyboard': "not found"}
 
         if not self.navi.entries:
             bot.sendMessage(chat_id, '검색결과가 없습니다. 다시 입력하세요.')
@@ -34,7 +33,10 @@ class TorrentManager(object):
 
         for (i,entry) in enumerate(self.navi.entries):
             if i == 10: break
-            title = str(i+1) + ". " + entry.title
+            if is_group_chat:
+                title = '/' + str(i+1) + ". " + entry.title
+            else:
+                title = str(i+1) + ". " + entry.title
 
             templist = []
             templist.append(title)
@@ -104,15 +106,17 @@ class TorrentManager(object):
         ds_user = items[0][0]
         #watch_dir = items[0][5]
 
-        log.info('ReceiveTorrentFile, ds_user:%s, Watch:%s', ds_user, watch_dir)
+        log.info('ReceiveTorrentFile, ds_user:%s, Watch:%s', ds_user, watch_dir.decode('utf-8'))
 
-        bot.download_file(fileid, watch_dir + file_name.encode('utf-8') )
+        #bot.download_file(fileid, watch_dir + file_name )
+
+        log.debug('downoad success')
         
-        log.info('%s download success', filename)
+        log.info('%s download success', filename.decode('utf-8'))
 
         hide_keyboard = {'hide_keyboard': True}
-        #msg = file_name + ' 파일을 ' + watch_dir + ' 경로에 다운로드 하였습니다';
-        #bot.sendMessage(chat_id, msg, reply_markup=hide_keyboard) 
+        #msg = file_name.decode('utf-8') + ' 파일을 ' + watch_dir.decode('utf-8') + ' 경로에 다운로드 하였습니다';
+        bot.sendMessage(chat_id, 'Torrent File Download...', reply_markup=hide_keyboard) 
 
         return True
 
