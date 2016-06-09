@@ -11,6 +11,16 @@ http://blog.acidpop.kr/228
 
 Telepot 8.1 업데이트시 Torrent 파일을 봇에게 전송 하면 CPU 점유율이 올라가는 문제가 있습니다.
 
+Telepot 8.2 버전에서 수정 예정이라고 합니다.
+
+8.2가 업데이트 되기 전에 해결을 원하시는 분은 아래 링크를 보고 수정 하시면 됩니다.
+
+https://github.com/nickoala/telepot/issues/93
+
+Telepot Package 는 XPEnology 5.2 기준으로 아래 경로에 있습니다.
+
+/usr/lib/python2.7/site-packages/telepot
+
 ------
 
 ### 변경 내역
