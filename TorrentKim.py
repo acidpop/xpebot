@@ -168,6 +168,9 @@ class TorrentKim(object):
                 log.error("GetTorrentFile| GetTorrentFileLink Fail")
                 return False, ''
 
+            #torrentName = "/tmp/" + torrentName
+            torrentName = os.path.join(u"/tmp/", torrentName)
+
             r = requests.get(torrentUrl, stream=True, headers={'referer': bbsUrl})
     
             size = float(r.headers['content-length']) / 1024.0
@@ -187,7 +190,7 @@ class TorrentKim(object):
             log.error("GetTorrentfile Exception : %s", traceback.format_exc())
             return False, ''
 
-        return True, torrentName
+        return True, torrentName.encode('utf-8')
     
     
     

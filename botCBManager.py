@@ -100,11 +100,19 @@ class botCBManager(object):
             bot.sendMessage(chat_id, 'Torrent File 다운로드 시도 실패')
             return False
 
-        log.info("File Move '%s' to '%s'", fileName, self.watch_dir.decode('utf-8'))
-        shutil.move(fileName, self.watch_dir.decode('utf-8'))
+        log.info("File Move '%s' to '%s'", fileName, self.watch_dir.encode('utf-8'))
+        try:
+            shutil.move(fileName, self.watch_dir.encode('utf-8'))
+        except Exception  as e:
+            log.error("File Move Exception, '%s'", e)
+            return False
 
-        msg = u"%s 파일을\n'%s'\n경로에 다운로드 하였습니다" % (fileName, self.watch_dir.decode('utf-8'))
-        bot.sendMessage(chat_id, msg)
+        try:
+            log.info("File '%s' Download Complete", fileName)
+            msg = "%s 파일을\n'%s'\n경로에 다운로드 하였습니다" % (fileName, self.watch_dir.encode('utf-8'))
+            bot.sendMessage(chat_id, msg)
+        except Exception  as e:
+            log.error("BOT SendMessage Error, '%s'", e)
 
         return True
 

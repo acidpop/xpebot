@@ -33,7 +33,7 @@ SIGNALS_TO_NAMES_DICT = dict((getattr(signal, n), n) for n in dir(signal) if n.s
 
 def signal_handler(signal, frame):
     log.info('recv signal : %s[%d]', SIGNALS_TO_NAMES_DICT[signal], signal)
-    traceback.print_stack(frame)
+    #traceback.print_stack(frame)
 
 def exception_hook(exc_type, exc_value, exc_traceback):
     log.error(

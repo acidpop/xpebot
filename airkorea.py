@@ -18,7 +18,8 @@ import linecache
 
 class airkorea(object):
 
-    grade_color = { 1 : (78, 137, 246, 255),
+    grade_color = { 0 : (0, 0, 0, 255),
+                    1 : (78, 137, 246, 255),
                     2 : (91, 212, 100, 255),
                     3 : (254, 127, 65, 255),
                     4 : (249, 74, 75, 255)}
@@ -47,7 +48,9 @@ class airkorea(object):
     # 미세먼지 등급 0~30, 31~80, 81~150, 151~
     # 초미세먼지 등급 0~15, 16~50, 51~100, 101~
     def GetKHAIGradeColor(self, val):
-        if val >= 0 and val <= 50:
+        if val < 0:
+            return self.grade_color[0]
+        elif val >= 0 and val <= 50:
             return self.grade_color[1]
         elif val >= 51 and val <= 100:
             return self.grade_color[2]
@@ -57,21 +60,25 @@ class airkorea(object):
             return self.grade_color[4]
 
     def GetPM10GradeColor(self, val):
-        if val >= 0 and val <= 30:
+        if val < 0:
+            return self.grade_color[0]
+        elif val >= 0 and val <= 25:
             return self.grade_color[1]
-        elif val >= 31 and val <= 80:
+        elif val >= 26 and val <= 50:
             return self.grade_color[2]
-        elif val >= 81 and val <= 150:
+        elif val >= 51 and val <= 75:
             return self.grade_color[3]
         else:
             return self.grade_color[4]
 
     def GetPM25GradeColor(self, val):
-        if val >= 0 and val <= 15:
+        if val < 0:
+            return self.grade_color[0]
+        elif val >= 0 and val <= 15:
             return self.grade_color[1]
-        elif val >= 16 and val <= 50:
+        elif val >= 16 and val <= 25:
             return self.grade_color[2]
-        elif val >= 51 and val <= 100:
+        elif val >= 26 and val <= 50:
             return self.grade_color[3]
         else:
             return self.grade_color[4]
@@ -215,21 +222,25 @@ class airkorea(object):
         drow_khai.text((227, 318), u'보통 51~100', font=fnt2, fill=(0, 0, 0, 255))
         drow_khai.text((227, 336), u'나쁨 101~250', font=fnt2, fill=(0, 0, 0, 255))
         drow_khai.text((227, 354), u'매우 나쁨 251~', font=fnt2, fill=(0, 0, 0, 255))
+        drow_khai.text((5, 354), u'※ 출처 : 한국환경공단', font=fnt2, fill=(0, 0, 0, 255))
     
         # 미세먼지 등급 0~30, 31~80, 81~150, 151~
+        # 미세먼지 등급 WHO 기준 50 이상은 나쁨
         drow_pm10.ellipse(((210,300),(223,312)), fill=(78, 137, 246, 255), outline="white")
         drow_pm10.ellipse(((210,318),(223,330)), fill=(91, 212, 100, 255), outline="white")
         drow_pm10.ellipse(((210,336),(223,348)), fill=(254, 127, 65, 255), outline="white")
         drow_pm10.ellipse(((210,354),(223,366)), fill=(249, 74, 75, 255), outline="white")
         drow_pm10.rectangle(((205, 296), (312, 368)), fill=None, outline=(190, 190, 190, 255))
     
-        drow_pm10.text((227, 300), u'좋음 0~30', font=fnt2, fill=(0, 0, 0, 255))
-        drow_pm10.text((227, 318), u'보통 31~80', font=fnt2, fill=(0, 0, 0, 255))
-        drow_pm10.text((227, 336), u'나쁨 81~150', font=fnt2, fill=(0, 0, 0, 255))
-        drow_pm10.text((227, 354), u'매우 나쁨 151~', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm10.text((227, 300), u'좋음 0~25', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm10.text((227, 318), u'보통 26~50', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm10.text((227, 336), u'나쁨 51~75', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm10.text((227, 354), u'매우 나쁨 75~', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm10.text((5, 354), u'※ 출처 : 한국환경공단', font=fnt2, fill=(0, 0, 0, 255))
     
     
         # 초미세먼지 등급 0~15, 16~50, 51~100, 101~
+        # 초미세먼지 등급 WHO 기준 25 이상은 나쁨
         drow_pm25.ellipse(((210,300),(223,312)), fill=(78, 137, 246, 255), outline="white")
         drow_pm25.ellipse(((210,318),(223,330)), fill=(91, 212, 100, 255), outline="white")
         drow_pm25.ellipse(((210,336),(223,348)), fill=(254, 127, 65, 255), outline="white")
@@ -237,9 +248,10 @@ class airkorea(object):
         drow_pm25.rectangle(((205, 296), (312, 368)), fill=None, outline=(190, 190, 190, 255))
     
         drow_pm25.text((227, 300), u'좋음 0~15', font=fnt2, fill=(0, 0, 0, 255))
-        drow_pm25.text((227, 318), u'보통 16~50', font=fnt2, fill=(0, 0, 0, 255))
-        drow_pm25.text((227, 336), u'나쁨 51~100', font=fnt2, fill=(0, 0, 0, 255))
-        drow_pm25.text((227, 354), u'매우 나쁨 101~', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm25.text((227, 318), u'보통 16~25', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm25.text((227, 336), u'나쁨 26~50', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm25.text((227, 354), u'매우 나쁨 51~', font=fnt2, fill=(0, 0, 0, 255))
+        drow_pm25.text((5, 354), u'※ 출처 : 한국환경공단', font=fnt2, fill=(0, 0, 0, 255))
     
     
         out_khai = Image.alpha_composite(base, khai_img)
