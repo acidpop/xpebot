@@ -129,14 +129,14 @@ class BOTManager(telepot.Bot):
             if result == True:
                 self.sendMessage(chat_id, 'Torrent Kim 검색 결과', reply_markup=keyboard)
             else:
-                self.sendMessage(chat_id, 'Torrent Kim 검색 실패')
+                self.sendMessage(chat_id, 'Torrent Kim 검색 결과가 없습니다')
         elif self.cur_mode == 'gettorrent':
             result, keyboard = self.torKim.SearchTorrentKim(command, 2)
             self.cur_mode = ''
             if result == True:
                 self.sendMessage(chat_id, 'Torrent Kim 다운로드 목록', reply_markup=keyboard)
             else:
-                self.sendMessage(chat_id, 'Torrent Kim 검색 실패')
+                self.sendMessage(chat_id, 'Torrent Kim 검색 결과가 없습니다')
         return
     
     # 전송된 메시지를 처리 하는 함수

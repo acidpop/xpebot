@@ -67,6 +67,9 @@ class TorrentKim(object):
         pageList = self.GetPageLink(sp, page_count)
         
         titleList = self.GetTitle(sp)
+        if titleList == None:
+            log.info("%s not found torrent", keyword)
+            return False, None
         
         for page in pageList:
             data = opener.open(page)
@@ -83,6 +86,10 @@ class TorrentKim(object):
 
     def GetTitle(self, bs, start_idx = 0):
         torTable = bs.find('table', attrs={'class':'board_list'})
+
+        if torTable == None:
+            log.info("Not Found Torrent")
+            return None
     
         torTRs = torTable.findAll('tr', attrs={'class':'bg1'})
     
