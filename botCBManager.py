@@ -129,6 +129,6 @@ class botCBManager(object):
 
         log.info("Torrent Kim File Download Success, File Name:'%s'", fileName)
 
-        bot.sendDocument(chat_id, open(fileName, 'rb'))
+        bot.sendDocument(chat_id, open(fileName.decode('utf-8'), 'rb'))
 
         return False

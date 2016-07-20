@@ -112,7 +112,7 @@ class TorrentManager(object):
 
         log.debug('downoad success')
         
-        log.info('%s download success', filename.decode('utf-8'))
+        log.info('%s download success', filename)
 
         hide_keyboard = {'hide_keyboard': True}
         #msg = file_name.decode('utf-8') + ' 파일을 ' + watch_dir.decode('utf-8') + ' 경로에 다운로드 하였습니다';

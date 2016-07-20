@@ -249,13 +249,15 @@ class BOTManager(telepot.Bot):
             self.SendMarkupMessage(chat_id, self.helper.HelpText, self.hide_keyboard)
         
         else:
-            start_keyboard = {'keyboard': [['/torrentsearch', '/weather', '/systeminfo'], 
-                                           ['/wol', '/addwol', '/delwol'],
-                                           ['/en2ko', '/ko2en', '/shorturl'],
-                                           ['/news', '/airkorea', '/namuwiki'],
-                                           ['/torkim', '/help', '/cancel']
-                                           ]}
-            self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
+            if is_group_chat == False:
+                start_keyboard = {'keyboard': [['/torrentsearch', '/weather', '/systeminfo'], 
+                                              ['/wol', '/addwol', '/delwol'],
+                                              ['/en2ko', '/ko2en', '/shorturl'],
+                                              ['/news', '/airkorea', '/namuwiki'],
+                                              ['/torkim', '/gettorrent', '/help', '/cancel']
+                                              ]}
+                self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
+            
             self.cur_mode = ''
 
 
@@ -385,23 +387,23 @@ class BOTManager(telepot.Bot):
         log.info("Callback Query - query Id:'%s', cb_type:'%s', From:%d, chat_id:%d, query:'%s'", query_id, query_type, from_id, chat_id, query_data)
         self.CBMgr.CBParser(query_data, self, chat_id)
         
-    def on_inline_query(self, msg):
-        query_id, from_id, query_string = telepot.glance(msg, flavor='inline_query')
-        print('Inline Query:', query_id, from_id, query_string)
-        log.info("Inline query - query Id:'%s', From:%d, query:'%s'", query_id, from_id, query_string);
+    #def on_inline_query(self, msg):
+    #    query_id, from_id, query_string = telepot.glance(msg, flavor='inline_query')
+    #    print('Inline Query:', query_id, from_id, query_string)
+    #    log.info("Inline query - query Id:'%s', From:%d, query:'%s'", query_id, from_id, query_string);
 
-        def compute_answer():
+    #    def compute_answer():
             # Compose your own answers
-            articles = [{'type': 'article',
-                            'id': 'abc', 'title': query_string, 'message_text': query_string}]
+    #        articles = [{'type': 'article',
+    #                        'id': 'abc', 'title': query_string, 'message_text': query_string}]
 
-            return articles
+    #        return articles
 
-        self._answerer.answer(msg, compute_answer)
+        #self._answerer.answer(msg, compute_answer)
 
-    def on_chosen_inline_result(self, msg):
-        result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
-        print('Chosen Inline Result:', result_id, from_id, query_string)
+    #def on_chosen_inline_result(self, msg):
+    #    result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
+    #    print('Chosen Inline Result:', result_id, from_id, query_string)
 
         
     def on_close(self, exception):
