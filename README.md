@@ -27,6 +27,14 @@ Telepot Package 는 XPEnology 5.2 기준으로 아래 경로에 있습니다.
 
 ### 변경 내역
 
+**0.5.0 (2016-08-29)**
+
+DSM 6.0 이상 버전에서 api 오류들 수정
+
+6.0 이상에서는 다음 과정이 필요하다. (<a href="http://blog.acidpop.kr/240" target="_blank">http://blog.acidpop.kr/240</a>)
+
+------
+
 **0.4.7 (2016-07-20)**
 
 그룹 채팅방에서는 커스텀 키보드가 보이지 않도록 변경
@@ -215,12 +223,14 @@ xpebot.cfg.ori 와 bot.sh.ori 파일이 업데이트 되었습니다.
     6) pip install psycopg2
     
     7) pip install Pillow
+    
+    8) pip install psutil
    
-    8) cd xpebot
+    9) cd xpebot
     
-    9) cp bot.sh.ori bot.sh
+    10) cp bot.sh.ori bot.sh
     
-    10) cp xpebot.cfg.ori xpebot.cfg
+    11) cp xpebot.cfg.ori xpebot.cfg
 
     **bot.sh.ori 파일과 xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 복사 하여 사용**
 
