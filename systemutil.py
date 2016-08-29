@@ -61,7 +61,7 @@ def system_status(interval_value=0.1):
     system_info += GetTopProcess(1)
     
     # Disk Info
-    disk_list = os.popen("df | grep volume | cut -d ' ' -f 7").read()
+    disk_list = os.popen("df | grep volume | awk '{print $6}'").read()
     for volume in disk_list.splitlines():
         if volume != '':
             system_info += '\n*' + volume[1:] + u' Disk 정보*\n'
