@@ -20,13 +20,15 @@ def GetTopProcess(count=3):
     for pid in process_list:
         try:
             info = psutil.Process(pid)
-            proc_cpu[info.name()] = info.get_cpu_percent()
+            proc_cpu[info.name()] = info.cpu_percent()
 
             temp_mem = info.memory_percent()
             for child in info.children(recursive=True):
                 temp_mem += child.memory_percent()
 
             proc_mem[info.name()] = temp_mem
+        except psutil.NoSuchProcess:
+            continue
         except:
             log.info('GetTopProcess except')
             continue
