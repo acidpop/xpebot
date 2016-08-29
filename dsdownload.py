@@ -210,6 +210,14 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
 
         log.info('CheckDownloadMonitorTable start...')
 
+        # Check DSM Version
+        ver = CommonUtil.GetDSMMajorVersion()
+        if ver != "5":
+            log.info("DSM Major Version : %s, Create Table pass", ver)
+            return
+
+        log.info("DSM Major Version : %s, DownloadStation Table Check", ver)
+
         ret = True
         if self.curs == None:
             ret = self.db_connect()
