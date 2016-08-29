@@ -43,6 +43,15 @@ class airkorea(object):
     }
     
     sido_list = {'서울', '인천', '강원', '경기', '충북', '충남', '대전', '경북', '전북', '대구', '울산', '광주', '경남', '부산', '전남', '제주'}
+
+    def PrintException(self):
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        log.error('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
                 
     # 통합대기 등급 0~50, 51~100, 101~250, 251~
     # 미세먼지 등급 0~30, 31~80, 81~150, 151~
@@ -174,7 +183,8 @@ class airkorea(object):
             khai, pm10, pm25, dataTime = self.GetSidoAirData(sido)
         
             if khai == -1 and pm10 == -1 and pm25 == -1:
-                break
+                log.error('Get Sido Air Data Fail')
+                return
         
             xy = self.sido_xy.get(sido)
             if xy == None:

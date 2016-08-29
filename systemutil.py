@@ -15,7 +15,7 @@ def GetTopProcess(count=3):
     proc_cpu = dict()
     proc_mem = dict()
 
-    process_list = psutil.get_pid_list()
+    process_list = psutil.pids()
 
     for pid in process_list:
         try:

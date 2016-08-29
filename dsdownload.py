@@ -29,10 +29,9 @@ class dsdownload(object):
     def db_connect(self, host='localhost', dbname='download', user='postgres', password=''):
         #global curs
         #global conn
-        conn_string = "host='%s' dbname='%s' user='%s' password='%s'" % (host, dbname, user, password)
 
         try:
-            self.conn = psycopg2.connect(conn_string)
+            self.conn = psycopg2.connect(database=dbname, user=user, password=password)
             self.conn.autocommit = True
         except Exception as e:
             log.error("dsdownload db_connect error")
