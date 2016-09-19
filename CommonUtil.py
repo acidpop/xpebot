@@ -9,10 +9,10 @@ def hbytes(num):
     return "%3.2f%s" % (num, 'TB')
 
 
-def dequote(s):
-    if (s[0] == s[-1]) and s.startswith(("'", '"')):
-        return s[1:-1]
-    return s
+def dequote(text):
+    if (text[0] == text[-1]) and text.startswith(("'", '"')):
+        return text[1:-1]
+    return text
 
 
 def GetDSMMajorVersion():
