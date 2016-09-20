@@ -359,7 +359,7 @@ class BOTManager(telepot.Bot):
                 return
 
             if content_type is 'document':
-                file_name = msg['document']['file_name']
+                file_name = unicode(msg['document']['file_name'])
                 file_id = msg['document']['file_id']
                 file_ext = os.path.splitext(file_name)
                 file_type = msg['document']['mime_type']
