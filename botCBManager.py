@@ -103,6 +103,7 @@ class botCBManager(object):
         log.info("File Move '%s' to '%s'", fileName, self.watch_dir.encode('utf-8'))
         try:
             shutil.move(fileName, self.watch_dir.encode('utf-8'))
+            #shutil.copy(fileName, self.watch_dir.encode('utf-8'))
         except Exception  as e:
             log.error("File Move Exception, '%s'", e)
             return False

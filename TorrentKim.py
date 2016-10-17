@@ -54,7 +54,7 @@ class TorrentKim(object):
             log.info('Search Torrent Kim, Unknown Type:%d', type)
             return False, None
 
-        tor_url = 'https://torrentkim3.net/bbs/s.php?k='
+        tor_url = 'https://torrentkim5.net/bbs/s.php?k='
 
         urlTest = tor_url + quote(keyword.encode('utf-8'))
         
@@ -107,7 +107,7 @@ class TorrentKim(object):
             if TargetItem == None:
                 continue
             Title = TargetItem.text
-            torUrl = 'https://torrentkim3.net' + item.find('a', attrs={'target':'s'})['href'][2:]
+            torUrl = 'https://torrentkim5.net' + item.find('a', attrs={'target':'s'})['href'][2:]
     
             titleList[torUrl] = list()
             
@@ -120,7 +120,7 @@ class TorrentKim(object):
     
     
     def GetPageLink(self, bs, page_count=2):
-        baseUrl = 'https://torrentkim3.net/bbs/s.php'
+        baseUrl = 'https://torrentkim5.net/bbs/s.php'
         pageDiv = bs.find('div', attrs={'class':'board_page'})
         pageLinks = pageDiv.findAll('a')
 
@@ -143,6 +143,9 @@ class TorrentKim(object):
         try:
             opener = urllib2.build_opener()
             opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11')]
+            
+            log.info("TorrentKim bbs URL : %s", bbsUrl)
+
             data = opener.open(bbsUrl)
             sp = BeautifulSoup.BeautifulSoup(data)
         
@@ -152,7 +155,9 @@ class TorrentKim(object):
             start = fullLink.find("'")+1
             end = fullLink.find("'", start)
     
-            fileLink = 'https://torrentkim3.net' + fullLink[start:end]
+            fileLink = 'https://torrentkim5.net' + fullLink[start:end]
+
+            log.info("TorrentKim File URL : %s", fileLink)
 
             torrentName = sp.find('div', {'id': 'writeContents'}).find('legend').text
         except urllib2.HTTPError, e:
@@ -180,7 +185,7 @@ class TorrentKim(object):
 
             r = requests.get(torrentUrl, stream=True, headers={'referer': bbsUrl})
     
-            size = float(r.headers['content-length']) / 1024.0
+            #size = float(r.headers['content-length']) / 1024.0
     
             with open(torrentName.encode('utf-8'), 'wb') as f: 
                 chunks = enumerate(r.iter_content(chunk_size=1024)) 

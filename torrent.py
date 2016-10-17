@@ -90,6 +90,37 @@ class TorrentManager(object):
 
         return True
 
+    def RegisterMagnetLink(self, magnetLink, bot, chat_id):
+        ds = dsdownload.dsdownload()
+
+        log.info('DS Torrent download for magnetLink')
+
+        ret, items = ds.db_query("SELECT * FROM USER_SETTING WHERE username='" + self.dsm_id + "';")
+        if ret == False:
+            log.info('DS Download User Setting not found..')
+            return False
+
+        ds_user = items[0][0]
+        sh_dir = items[0][2]
+        log.info('DS Download Config, Download Directory : %s', sh_dir)
+
+        log.info("DS Download, user:'%s', DownloadPath:'%s', Magnet Link : '%s'", ds_user, sh_dir.decode('utf-8'), magnetLink)
+
+        query = u"INSERT INTO download_queue (username, url, status, filename, pid, created_time, destination) VALUES ('%s', '%s', 1, 'Magnet Link', %d, %d, '%s');" % (ds_user, magnetLink, os.getpid(), int(time.time()), sh_dir.decode('utf-8')) 
+        log.debug(query)
+        ret = ds.db_exec(query.encode('utf-8'))
+        log.info('torrent download query complete')
+
+        hide_keyboard = {'hide_keyboard': True}
+        if ret == True:
+            msg = 'Magnet Link 가 등록 되었습니다.\n다운로드를 시작합니다.'
+            bot.sendMessage(chat_id, msg, reply_markup=hide_keyboard) 
+        else:
+            bot.sendMessage(chat_id, u'Magnet Link 등록 실패', reply_markup=hide_keyboard) 
+
+        return True
+
+
     def ReceiveTorrentFile(self, fileid, file_name, file_ext, file_type, bot, chat_id):
         watch_dir = main.botConfig.GetTorrentWatchDir()
         filename = file_name + "." + file_ext

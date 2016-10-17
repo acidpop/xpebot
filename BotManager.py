@@ -249,14 +249,21 @@ class BOTManager(telepot.Bot):
             self.SendMarkupMessage(chat_id, self.helper.HelpText, self.hide_keyboard)
         
         else:
-            if is_group_chat == False:
-                start_keyboard = {'keyboard': [['/torrentsearch', '/weather', '/systeminfo'], 
-                                              ['/wol', '/addwol', '/delwol'],
-                                              ['/en2ko', '/ko2en', '/shorturl'],
-                                              ['/news', '/airkorea', '/namuwiki'],
-                                              ['/torkim', '/gettorrent', '/help', '/cancel']
-                                              ]}
-                self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
+            # magnet 주소 라면 Download Station 에 등록 한다.
+            if( command[0:8] == 'magnet:?'):
+                show_keyboard = {'hide_keyboard': False}
+                log.info('command message is magnet link, register download station, link:%s', command)
+                self.sendMessage(chat_id, 'Magnet Link를 등록합니다', reply_markup=show_keyboard)
+                result = self.tor.RegisterMagnetLink(command, self, chat_id)
+            else:
+                if is_group_chat == False:
+                    start_keyboard = {'keyboard': [['/torrentsearch', '/weather', '/systeminfo'], 
+                                                  ['/wol', '/addwol', '/delwol'],
+                                                  ['/en2ko', '/ko2en', '/shorturl'],
+                                                  ['/news', '/airkorea', '/namuwiki'],
+                                                  ['/torkim', '/gettorrent', '/help', '/cancel']
+                                                  ]}
+                    self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
             
             self.cur_mode = ''
 

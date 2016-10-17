@@ -27,6 +27,20 @@ Telepot Package 는 XPEnology 5.2 기준으로 아래 경로에 있습니다.
 
 ### 변경 내역
 
+**0.5.3 (2016-10-17)**
+
+TorrentKim Url 변경 적용 (/torkim 명령 이용시 Torrent 파일이 잘못 다운로드 되는 문제 수정)
+
+------
+
+**0.5.2 (2016-10-12)**
+
+Magnet Link 검출 기능 추가.
+
+Magnet 링크를 봇에게 보내면 Download Station 에 등록하는 기능
+
+------
+
 **0.5.1 (2016-08-29)**
 
 DSM Version Check Bug 수정
