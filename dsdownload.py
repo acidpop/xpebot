@@ -139,7 +139,7 @@ class dsdownload(object):
         IF (TG_OP = 'INSERT') THEN
             RETURN NEW;
         ELSIF (TG_OP = 'UPDATE') THEN
-            IF (NEW.status = 2 AND NEW.total_size > 0 AND NEW.current_size > 0) THEN
+            IF (NEW.status = 2 AND NEW.total_size > 0 ) THEN
                 SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 2;
                 IF ( rec_count = 0 ) THEN
                     INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
@@ -167,6 +167,81 @@ $btdownload_event$ LANGUAGE plpgsql;"""
             log.info('CreateMonitorProcedure Success')
         else:
             log.info('CreateMonitorProcedure Fail')
+
+        return
+
+    def UpdateMonitorProcedure(self, bot, chat_id):
+        ret = True
+        if self.curs == None:
+            ret = self.db_connect()
+
+        if ret == True:
+            try:
+                query = """CREATE OR REPLACE FUNCTION process_btdownload_event() RETURNS TRIGGER AS $btdownload_event$
+    DECLARE
+        rec_count integer;
+    BEGIN
+        IF (TG_OP = 'INSERT') THEN
+            RETURN NEW;
+        ELSIF (TG_OP = 'UPDATE') THEN
+            IF (NEW.status = 2 AND NEW.total_size > 0 ) THEN
+                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 2;
+                IF ( rec_count = 0 ) THEN
+                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
+                END IF;
+            ELSIF (NEW.status = 5 ) THEN
+                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 5;
+                IF ( rec_count = 0 ) THEN
+                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
+                END IF;
+            ELSIF (NEW.status = 118) THEN
+                UPDATE download_queue SET status = 5, extra_info = '' WHERE task_id = NEW.task_id;
+                DELETE FROM task_plugin WHERE task_id = NEW.task_id;
+                DELETE FROM thumbnail WHERE task_id = NEW.task_id;
+            END IF;
+            RETURN NEW;
+        ELSIF (TG_OP = 'DELETE') THEN
+                DELETE FROM btdownload_event WHERE task_id = OLD.task_id;
+            RETURN OLD;
+        END IF;
+        RETURN NULL;
+    END;
+$btdownload_event$ LANGUAGE plpgsql;"""
+                
+                if self.db_exec(query) :
+                    log.info('UpdateMonitorProcedure Success')
+                    bot.sendMessage(chat_id, 'xpebot db update success!!')
+                else:
+                    log.info('UpdateMonitorProcedure Fail')
+                    bot.sendMessage(chat_id, 'xpebot db update fail!!')
+
+            except psycopg2.IntegrityError as err:
+                if err.pgcode != '23505':
+                    log.error('UpdateMonitorProcedure|DB IntegrityError : %s',  err)
+                else:
+                    log.error('UpdateMonitorProcedure|DB Not Intergrity Error : %s', err)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+                bot.sendMessage(chat_id, 'xpebot db update fail!!')
+            except Exception as err:
+                log.error('UpdateMonitorProcedure|DB Exception : %s',  err)
+                log.error("UpdateMonitorProcedure Exception : %s", traceback.format_exc())
+                strErr = str(err.message)
+                log.error('error ---- %s, %d', strErr, strErr.find('relation "btdownload_event" does not exist'))
+                if strErr.find('relation "btdownload_event" does not exist') != -1:
+                    self.CheckDownloadMonitorTable()
+
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+                bot.sendMessage(chat_id, 'xpebot db update fail!!')
+            except:
+                log.error("UpdateMonitorProcedure|psycopg except : " + e)
+                self.curs.close()
+                self.conn.close()
+                self.curs = None
+                bot.sendMessage(chat_id, 'xpebot db update fail!!')
 
         return
 

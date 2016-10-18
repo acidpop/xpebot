@@ -247,6 +247,11 @@ class BOTManager(telepot.Bot):
         elif command == '/help':
             log.info("cmd_handle : Help Mode")
             self.SendMarkupMessage(chat_id, self.helper.HelpText, self.hide_keyboard)
+
+        elif command == '/xpebotupdate':
+            log.info("xpebot Update command")
+            self.ds.UpdateMonitorProcedure(self, chat_id)
+
         
         else:
             # magnet 주소 라면 Download Station 에 등록 한다.
