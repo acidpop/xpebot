@@ -147,7 +147,9 @@ class TorrentManager(object):
 
         hide_keyboard = {'hide_keyboard': True}
         #msg = file_name.decode('utf-8') + ' 파일을 ' + watch_dir.decode('utf-8') + ' 경로에 다운로드 하였습니다';
-        bot.sendMessage(chat_id, 'Torrent File Download...', reply_markup=hide_keyboard) 
+        #msg = "%s 파일을\n'%s'\n경로에 다운로드 하였습니다" % (filename.encode('utf-8'), watch_dir.encode('utf-8'))
+        msg = 'Torrent 파일을 Watch 경로에 다운로드 하였습니다\n잠시 후 다운로드가 시작됩니다'
+        bot.sendMessage(chat_id, msg, reply_markup=hide_keyboard) 
 
         return True
 

@@ -4,6 +4,7 @@ import psycopg2
 import CommonUtil
 import telepot
 import traceback
+import re
 
 from LogManager import log
 
@@ -153,10 +154,19 @@ class dsdownload(object):
                 UPDATE download_queue SET status = 5, extra_info = '' WHERE task_id = NEW.task_id;
                 DELETE FROM task_plugin WHERE task_id = NEW.task_id;
                 DELETE FROM thumbnail WHERE task_id = NEW.task_id;
+            ELSIF (NEW.status = 123) THEN
+                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 123;
+                IF ( rec_count = 0 ) THEN
+                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
+                END IF;
             END IF;
             RETURN NEW;
         ELSIF (TG_OP = 'DELETE') THEN
+            IF (OLD.status = 2) THEN
+                INSERT INTO btdownload_event VALUES(OLD.task_id, OLD.username, OLD.filename, 999, OLD.total_size, 0, now());
+            ELSE
                 DELETE FROM btdownload_event WHERE task_id = OLD.task_id;
+            END IF;
             RETURN OLD;
         END IF;
         RETURN NULL;
@@ -198,10 +208,19 @@ $btdownload_event$ LANGUAGE plpgsql;"""
                 UPDATE download_queue SET status = 5, extra_info = '' WHERE task_id = NEW.task_id;
                 DELETE FROM task_plugin WHERE task_id = NEW.task_id;
                 DELETE FROM thumbnail WHERE task_id = NEW.task_id;
+            ELSIF (NEW.status = 123) THEN
+                SELECT COUNT(*) into rec_count FROM btdownload_event WHERE task_id = NEW.task_id AND status = 123;
+                IF ( rec_count = 0 ) THEN
+                    INSERT INTO btdownload_event VALUES(NEW.task_id, NEW.username, NEW.filename, NEW.status, NEW.total_size, 0, now());
+                END IF;
             END IF;
             RETURN NEW;
         ELSIF (TG_OP = 'DELETE') THEN
+            IF (OLD.status = 2) THEN
+                INSERT INTO btdownload_event VALUES(OLD.task_id, OLD.username, OLD.filename, 999, OLD.total_size, 0, now());
+            ELSE
                 DELETE FROM btdownload_event WHERE task_id = OLD.task_id;
+            END IF;
             RETURN OLD;
         END IF;
         RETURN NULL;
@@ -277,6 +296,10 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
             return "파일 호스팅 대기"
         elif status == 9:
             return "압축 해제 중"
+        elif status == 123:
+            return "잘못된 Torrent 파일"
+        elif status == 999:
+            return "다운로드 취소"
         else:
             return "알 수 없는 코드 [" + str(status) + "]"
 
@@ -360,6 +383,8 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
         #print 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
         log.info('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
 
+
+
     def download_db_timer(self):
         ret = True
         if self.curs == None:
@@ -376,20 +401,33 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                         task_id = row[0]
                         username = row[1]
                         tor_name = row[2]
-                        status = self.dsdown_status_to_str(row[3])
+                        status_no = row[3]
+
+                        status = self.dsdown_status_to_str(status_no)
                         total_size = CommonUtil.hbytes(row[4])
 
                         # bot.sendMessage(24501560, "<b>Bold Text</b>\n<pre color='blue'>Test Message</pre>\nHTML Mode", parse_mode='HTML')
                         # Markdown 문법에서 _ 는 * 로 대체 되므로 \_ 로 변경
-                        tor_name = tor_name.replace('_', '\_')
+                        # tor_name = tor_name.replace('_', '\_')
                         # Markdown 문법에서 *는 MarkDown 문법을 시작하는 문자이므로 \* 로 변경
-                        tor_name = tor_name.replace('*', '\*')
+                        # tor_name = tor_name.replace('*', '\*')
 
-                        msg = '*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s' % (status, tor_name, total_size, username)
+                        # Telegram Bot MarkDown 문법 중 *, _, [ 문자는 앞에 역슬래시를 붙여준다'
+                        tor_name = re.sub(r"([*_'\[])", r"\\\1", tor_name)
+
+                        # DELETE FROM btdownload_event WHERE task_id = OLD.task_id;
+                        if status_no == 999:
+                            query = "DELETE FROM btdownload_event WHERE task_id = %d" % (task_id)
+                            msg = '*상태* : %s\n*이름* : %s\n*사용자* : %s' % (status, tor_name, username)
+                        else:
+                            query = "UPDATE btdownload_event SET isread = 1 WHERE task_id = %d" % (task_id)
+                            msg = '*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s' % (status, tor_name, total_size, username)
+
+                        log.info('Bot send : %s', msg)
                         
-                        self.bot.sendMessage(self.chat_id, msg, parse_mode='Markdown')
+                        self.bot.sendMessage(self.chat_id, msg.decode('utf-8'), parse_mode='Markdown')
 
-                        query = "UPDATE btdownload_event SET isread = 1 WHERE task_id = %d" % (task_id)
+                        log.info("DB Query : %s", query)
                         self.curs.execute(query)
             except psycopg2.IntegrityError as err:
                 if err.pgcode != '23505':
