@@ -35,6 +35,10 @@ def signal_handler(signal, frame):
     log.info('recv signal : %s[%d]', SIGNALS_TO_NAMES_DICT[signal], signal)
     #traceback.print_stack(frame)
 
+def signal_term_handler(signal, frame):
+    log.info('recv signal : %s[%d]', SIGNALS_TO_NAMES_DICT[signal], signal)
+    botConfig.SetLoop(False)
+
 def exception_hook(exc_type, exc_value, exc_traceback):
     log.error(
         "Uncaught exception",
@@ -51,7 +55,7 @@ def main():
         log.info('Telegram BOT Initialize...')
 
         # signal Register
-        signal.signal(signal.SIGTERM, signal_handler)
+        signal.signal(signal.SIGTERM, signal_term_handler)
         signal.signal(signal.SIGABRT, signal_handler)
         signal.signal(signal.SIGSEGV, signal_handler)
         signal.signal(signal.SIGHUP, signal_handler)
@@ -65,15 +69,19 @@ def main():
         
         bot.message_loop()
         
-        while 1:
+        while botConfig.IsLoop():
             time.sleep(10)
         
+        bot.close()
         log.info('Telegram BOT Exit...')
+        
+        os.kill(os.getpid(), signal.SIGINT)
     except Exception, e:
         log.error(e, exc_info=True)
     except:
         log.error('XPEBot Exeption')
         sys.excepthook = exception_hook
+    
 
     return
 

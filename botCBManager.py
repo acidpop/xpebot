@@ -13,7 +13,7 @@ import json
 import sqlite3
 from telepot.delegate import per_chat_id, create_open
 
-from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardHide, ForceReply 
+from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove , ForceReply 
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton 
 from telepot.namedtuple import InlineQueryResultArticle, InlineQueryResultPhoto, InputTextMessageContent 
 

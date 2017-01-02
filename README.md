@@ -12,15 +12,17 @@
 
 ### 이번 업데이트 내역
 
-**0.5.5 (2016-10-26)**
+**0.5.6 (2017-01-02)**
 
-DownloadStation 에서 Torrent 제목에 대괄호([])가 포함 되어 있고 대괄호 사이 공백이 있는 경우 메시지 전송을 못하는 문제 수정
+DSM 6.x 전용 bot.sh 파일 추가
 
-DownloadStation 에서 Torrent 다운로드 도중에 제거 하였을 경우 다운로드 취소 메시지 전송 기능 추가
+DSM 6.x 에서는 최초 설치 후 bot6.sh.ori 파일을 bot.sh 로 복사 하셔서 사용하시면 됩니다.
 
-잘못된 Torrent 파일 업로드 시 오류 메시지 전송 하도록 수정 (봇 재시작 후 "/xpebotupdate" 메시지를 보내야 적용 됩니다)
+telepot 이 업데이트 되면서 ReplyKeyboardHide 이름이 ReplyKeyboardRemove 이름으로 변경 되어 소스상에 업데이트 하였습니다.
 
-마찬가지로 DSM 6.0 이상 사용자는 "http://blog.acidpop.kr/240" 블로그를 참조 하여 2.Create OR Replace function 코드를 적용 하셔야 합니다.
+pip install telepot --upgrade 를 수행 하신 다음 xpebot 을 업데이트 하셔서 사용하시면 됩니다.
+
+토렌트 파일 전송시 파일 이름에 특정 내용이 있을 경우 문자열 인코딩 실패 오류를 수정하였습니다.
 
 ------
 

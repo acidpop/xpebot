@@ -139,7 +139,7 @@ class TorrentManager(object):
 
         log.info('ReceiveTorrentFile, ds_user:%s, Watch:%s', ds_user, watch_dir.decode('utf-8'))
 
-        bot.download_file(fileid, watch_dir + file_name )
+        bot.download_file(fileid, watch_dir + file_name.encode('utf-8'))
 
         log.debug('downoad success')
         

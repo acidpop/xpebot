@@ -37,6 +37,9 @@ class BotConfig(object):
 
     host_name = ''
 
+    # main loop flag
+    is_loop = True
+
     def __init__(self, *args, **kwargs):
         
         config_file_path = str(args[0])
@@ -123,4 +126,10 @@ class BotConfig(object):
 
     def GetHostName(self):
         return self.host_name
+
+    def IsLoop(self):
+        return self.is_loop
+
+    def SetLoop(self, flag):
+        self.is_loop = flag
 

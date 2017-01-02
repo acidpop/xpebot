@@ -1,0 +1,70 @@
+#! ./bash
+
+DSM_ACCOUNT="admin"
+PYTHON_PATH="/usr/bin/python"
+XPEBOT_MAIN="/var/services/homes/$DSM_ACCOUNT/xpebot/main.py"
+XPEBOT_CFG_PATH="/var/services/homes/$DSM_ACCOUNT/xpebot/xpebot.cfg"
+
+function ProcChk()
+{
+    PID=`/bin/ps -ef | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $2}'`
+    if [ "$PID" ] ;  then
+        printf "%16s : [36m[1mRunning[0m\n" "XPEnology Telegram BOT";
+    else
+        printf "%16s : [31m[1mStopped[0m\n" "XPEnology Telegram BOT";
+    fi;
+}
+
+function BOTStart()
+{
+    echo "[36m[1mStarting XPEnology Telegram BOT...[0m"
+    PID=`/bin/ps -ef | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $2}'`
+
+    if [ "$PID" ]; then
+        echo "XPEnology Telegram BOT Already Running"
+        # exit 1
+    else
+        $PYTHON_PATH "$XPEBOT_MAIN" "$XPEBOT_CFG_PATH" &
+		sleep 1
+        ProcChk
+    fi
+    
+}
+
+
+function BOTStop()
+{
+    echo "XPEnology Telegram BOT safe stop Trying"
+
+    PID=`/bin/ps -ef | /bin/grep "python" | /bin/grep "main.py" | /usr/bin/awk '{print $2}'`
+
+    if [ -z "$PID" ]; then
+        echo "XPEnology Telegram BOT Already Stop"
+        # exit 1
+    else
+        kill -9 $PID
+    fi
+
+    sleep 1
+}
+
+case "$1" in
+start)
+    BOTStart
+    ;;
+stop)
+    BOTStop
+    ProcChk
+    ;;
+restart)
+    BOTStop
+    ProcChk
+    BOTStart
+    ;;
+chk)
+    ProcChk
+    ;;
+*)
+    echo "Usage : `basename $0` [ start | stop | restart | chk ]"
+    ;;
+esac
