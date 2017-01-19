@@ -158,12 +158,6 @@ class BOTManager(telepot.Bot):
             self.cur_mode = ''
             return
 
-        if self.cur_mode:
-            self.current_mode_handler(command, chat_id, is_group_chat)
-            return
-
-        self.cur_mode = ''
-
         if command == '/torrentsearch' or command == u'/토렌트':
             log.info("cmd_handle : Torrent Search")
             self.cur_mode = 'torrentsearch'
@@ -252,6 +246,9 @@ class BOTManager(telepot.Bot):
             log.info("xpebot Update command")
             self.ds.UpdateMonitorProcedure(self, chat_id)
 
+        elif self.cur_mode:
+            self.current_mode_handler(command, chat_id, is_group_chat)
+            self.cur_mode = ''
         
         else:
             # magnet 주소 라면 Download Station 에 등록 한다.

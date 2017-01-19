@@ -101,6 +101,7 @@ class airkorea(object):
             return False
     
     def ChangeTimeString(self, strTime):
+        strTime = strTime.replace('24:', '00:')
         time1 = time.strptime(strTime, "%Y-%m-%d %H:%M")
         strDate = time.strftime("%Y.%m.%d %H:00 기준")
         return strDate

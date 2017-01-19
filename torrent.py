@@ -13,7 +13,7 @@ from LogManager import log
 class TorrentManager(object):
     """description of class"""
 
-    rssUrl = """https://torrentkim1.net/bbs/rss.php?k="""
+    rssUrl = """https://torrentkim5.net/bbs/rss.php?k="""
     navi = feedparser.FeedParserDict()
 
     dsm_id = main.botConfig.GetDsmId()

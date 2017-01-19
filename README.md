@@ -12,17 +12,11 @@
 
 ### 이번 업데이트 내역
 
-**0.5.6 (2017-01-02)**
+**0.5.7 (2017-01-20)**
 
-DSM 6.x 전용 bot.sh 파일 추가
+torrentsearch 명령 수행 후 cancel 을 하지 않고 다른 명령 수행시 오류 발생 부분을 수정하였습니다.
 
-DSM 6.x 에서는 최초 설치 후 bot6.sh.ori 파일을 bot.sh 로 복사 하셔서 사용하시면 됩니다.
-
-telepot 이 업데이트 되면서 ReplyKeyboardHide 이름이 ReplyKeyboardRemove 이름으로 변경 되어 소스상에 업데이트 하였습니다.
-
-pip install telepot --upgrade 를 수행 하신 다음 xpebot 을 업데이트 하셔서 사용하시면 됩니다.
-
-토렌트 파일 전송시 파일 이름에 특정 내용이 있을 경우 문자열 인코딩 실패 오류를 수정하였습니다.
+airkorea 수행 시 밤 12시 인경우 python 오류를 수정하였습니다.
 
 ------
 
