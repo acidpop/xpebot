@@ -31,13 +31,13 @@ from LogManager import log
 
 SIGNALS_TO_NAMES_DICT = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n )
 
-def signal_handler(signal, frame):
-    log.info('recv signal : %s[%d]', SIGNALS_TO_NAMES_DICT[signal], signal)
-    #traceback.print_stack(frame)
+def signal_handler(sig, frame):
+    log.info('recv signal : %s[%d]', SIGNALS_TO_NAMES_DICT[sig], sig)
 
-def signal_term_handler(signal, frame):
-    log.info('recv signal : %s[%d]', SIGNALS_TO_NAMES_DICT[signal], signal)
-    botConfig.SetLoop(False)
+def signal_term_handler(sig, frame):
+    log.info('recv signal : %s[%d]', SIGNALS_TO_NAMES_DICT[sig], sig)
+    log.info('SIGTERM signal ignore')
+    #botConfig.SetLoop(False)
 
 def exception_hook(exc_type, exc_value, exc_traceback):
     log.error(
@@ -66,22 +66,22 @@ def main():
         botManager = bot
 
         log.info('Telegram BOT Init OK')
-        
+
         bot.message_loop()
-        
+
         while botConfig.IsLoop():
             time.sleep(10)
-        
+
         bot.close()
         log.info('Telegram BOT Exit...')
-        
+
         os.kill(os.getpid(), signal.SIGINT)
-    except Exception, e:
-        log.error(e, exc_info=True)
+    #except Exception, e:
+    #    log.error(e, exc_info=True)
     except:
         log.error('XPEBot Exeption')
         sys.excepthook = exception_hook
-    
+
 
     return
 

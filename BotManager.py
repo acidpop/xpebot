@@ -248,7 +248,6 @@ class BOTManager(telepot.Bot):
 
         elif self.cur_mode:
             self.current_mode_handler(command, chat_id, is_group_chat)
-            self.cur_mode = ''
         
         else:
             # magnet 주소 라면 Download Station 에 등록 한다.
