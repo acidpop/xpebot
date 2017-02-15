@@ -53,6 +53,7 @@ class dsdownload(object):
             try:
                 self.curs.execute(query.decode('utf-8'))
                 result = self.curs.fetchall()
+                log.info('db_query complete')
             except psycopg2.IntegrityError as err:
                 if err.pgcode != '23505':
                     log.error('db_query|DB IntegrityError : %s',  err)
@@ -69,6 +70,7 @@ class dsdownload(object):
                 self.curs = None
                 return False, ''
             except:
+                e = sys.exc_info()[0]
                 log.error("db_query|psycopg except : " + e)
                 self.curs.close()
                 self.conn.close()
@@ -104,6 +106,7 @@ class dsdownload(object):
                 self.conn.close()
                 self.curs = None
             except:
+                e = sys.exc_info()[0]
                 log.error("db_exec|psycopg except : " + e)
                 self.curs.close()
                 self.conn.close()

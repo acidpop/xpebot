@@ -17,5 +17,12 @@ def ExecuteCommand(command):
     return output
 
 
+def ExecutePSQL(query):
+    log.info('Execute PSQL query:%s', query)
 
+    cmd = 'psql -U postgres -d download -c "' + query + '"'
+
+    output = os.popen(cmd).read()
+    log.info('ExecuteCommand Result : %s', output)
+    return output
 

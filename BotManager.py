@@ -9,6 +9,7 @@ import feedparser
 import telepot
 import subprocess
 import json
+import linecache
 from telepot.delegate import per_chat_id, create_open
 
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, ForceReply 
@@ -76,6 +77,24 @@ class BOTManager(telepot.Bot):
         
         return
 
+    def PrintException(self):
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        log.error('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
+
+    def send_help_keyboard(self, chat_id):
+        start_keyboard = {'keyboard': [['/torrentsearch', '/weather', '/systeminfo'], 
+                                      ['/wol', '/addwol', '/delwol'],
+                                      ['/en2ko', '/ko2en', '/shorturl'],
+                                      ['/news', '/airkorea', '/namuwiki'],
+                                      ['/torkim', '/gettorrent', '/help', '/cancel']
+                                      ]}
+        self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
+
     def current_mode_handler(self, command, chat_id, is_group_chat=False):
         log.info('current mode handler : ' +  self.cur_mode)
         
@@ -124,20 +143,22 @@ class BOTManager(telepot.Bot):
             self.namuWiki.SearchDocument(command.encode('utf-8'), self, chat_id)
             self.cur_mode = ''
         elif self.cur_mode == 'torkim':
-            result, keyboard = self.torKim.SearchTorrentKim(command)
+            result, keyboard, outList = self.torKim.SearchTorrentKim(command)
             self.cur_mode = ''
             if result == True:
+                self.sendMessage(chat_id, outList)
                 self.sendMessage(chat_id, 'Torrent Kim 검색 결과', reply_markup=keyboard)
             else:
                 self.sendMessage(chat_id, 'Torrent Kim 검색 결과가 없습니다')
         elif self.cur_mode == 'gettorrent':
-            result, keyboard = self.torKim.SearchTorrentKim(command, 2)
+            result, keyboard, outList = self.torKim.SearchTorrentKim(command, 2)
             self.cur_mode = ''
             if result == True:
+                self.sendMessage(chat_id, outList)
                 self.sendMessage(chat_id, 'Torrent Kim 다운로드 목록', reply_markup=keyboard)
             else:
                 self.sendMessage(chat_id, 'Torrent Kim 검색 결과가 없습니다')
-        return
+        
     
     # 전송된 메시지를 처리 하는 함수
     def command_handler(self, command, chat_id, is_group_chat=False):
@@ -149,12 +170,7 @@ class BOTManager(telepot.Bot):
             return
 
         if command == '/start':
-            start_keyboard = {'keyboard': [['/torrentsearch'], 
-                                           ['/weather'], 
-                                           ['/wol', '/addwol', '/delwol'],
-                                           ['/help']
-                                           ]}
-            self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요 \U0001f60f', reply_markup=start_keyboard)
+            self.send_help_keyboard(chat_id)
             self.cur_mode = ''
             return
 
@@ -231,11 +247,11 @@ class BOTManager(telepot.Bot):
 
         elif command == '/torkim':
             show_keyboard = {'hide_keyboard': False}
-            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=show_keyboard);
+            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=show_keyboard)
             self.cur_mode = 'torkim'
         elif command == '/gettorrent':
             show_keyboard = {'hide_keyboard': False}
-            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=show_keyboard);
+            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=show_keyboard)
             self.cur_mode = 'gettorrent'
 
         elif command == '/help':
@@ -258,13 +274,7 @@ class BOTManager(telepot.Bot):
                 result = self.tor.RegisterMagnetLink(command, self, chat_id)
             else:
                 if is_group_chat == False:
-                    start_keyboard = {'keyboard': [['/torrentsearch', '/weather', '/systeminfo'], 
-                                                  ['/wol', '/addwol', '/delwol'],
-                                                  ['/en2ko', '/ko2en', '/shorturl'],
-                                                  ['/news', '/airkorea', '/namuwiki'],
-                                                  ['/torkim', '/gettorrent', '/help', '/cancel']
-                                                  ]}
-                    self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
+                    self.send_help_keyboard(chat_id)
             
             self.cur_mode = ''
 
@@ -360,7 +370,6 @@ class BOTManager(telepot.Bot):
                 log.info("Group Message : %s", groupMsg)
                 return
 
-
             if content_type is 'text':
                 self.command_handler(unicode(msg['text']), chat_id)
                 log.info(msg['text'])
@@ -373,11 +382,10 @@ class BOTManager(telepot.Bot):
                 file_type = msg['document']['mime_type']
                 self.file_handler(file_name, file_id, file_ext[1], file_type, chat_id)
                 return
-        except Exception, e:
-            log.error(e, exc_info=True)
         except:
+            self.PrintException()
             log.error('XPEBot on_chat_message Exeption')
-            sys.excepthook = main.exception_hook
+            #sys.excepthook = main.exception_hook
             
     def on_callback_query(self, msg):
         query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')

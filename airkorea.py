@@ -92,90 +92,90 @@ class airkorea(object):
         else:
             return self.grade_color[4]
 
-    
+
     def isNum(self, s):
         try:
             float(s)
             return True
         except ValueError:
             return False
-    
+
     def ChangeTimeString(self, strTime):
         strTime = strTime.replace('24:', '00:')
         time1 = time.strptime(strTime, "%Y-%m-%d %H:%M")
         strDate = time.strftime("%Y.%m.%d %H:00 기준")
         return strDate
-    
-    
+
+
     def GetSidoAirData(self, sido):
         serviceKey = main.botConfig.GetDataServiceKey()
         url = "http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?numOfRows=200&pageNo=1&sidoName=" + sido + "&ver=1.0&ServiceKey=" + serviceKey + "&_returnType=json"
-        
+
         try:
             r = requests.get(url)
-    
+
             if r.status_code != 200:
                 return -1, -1, -1, ''
-    
+
             response = r.json()
-            
+
             items = response['list']
-            
+
             khai_value = 0
             khai_count = 0
-            
+
             pm10_value = 0
             pm10_count = 0
-            
+
             pm25_value = 0
             pm25_count = 0
-    
+
             dataTime = items[0]['dataTime']
-            
+
             for item in items:
                 if item.get('khaiValue') != None and self.isNum(item['khaiValue']):
                     khai = int(item['khaiValue'])
                     khai_value += khai
                     khai_count += 1
-            
+
                 if item.get('pm10Value') != None and self.isNum(item['pm10Value']):
                     pm10 = int(item['pm10Value'])
                     pm10_value += pm10
                     pm10_count += 1
-            
+
                 if item.get('pm25Value') != None and self.isNum(item['pm25Value']):
                     pm25 = int(item['pm25Value'])
                     pm25_value += pm25
                     pm25_count += 1
-            
+
         except requests.exceptions.RequestException as e:
             log.info('Request Exception : %s', e)
             return -1, -1, -1, ''
         except:
             self.PrintException()
             return -1, -1, -1, ''
-    
+
         return int(khai_value / khai_count), int(pm10_value / pm10_count), int(pm25_value / pm25_count), dataTime
-    
-    
+
+
     def SendAirKorea(self, bot, chat_id):
         execute_path = main.botConfig.GetExecutePath()
-    
+
         font_path = execute_path + '/NanumGothicExtraBold.ttf'
         fnt = ImageFont.truetype(font_path, 14)
-    
+
         font2_path = execute_path + '/NanumBarunGothic.ttf'
         fnt2 = ImageFont.truetype(font2_path, 12)
-    
+
         img_map_path = execute_path + '/airmap.png'
         base = Image.open(img_map_path).convert('RGBA')
-        khai_img = Image.new('RGBA', base.size, (255,255,255,0))
+        khai_img = Image.new('RGBA', base.size, (255, 255, 255, 0))
         drow_khai = ImageDraw.Draw(khai_img)
     
-        pm10_img = Image.new('RGBA', base.size, (255,255,255,0))
+        pm10_img = Image.new('RGBA', base.size, (255, 255, 255, 0))
         drow_pm10 = ImageDraw.Draw(pm10_img)
     
-        pm25_img = Image.new('RGBA', base.size, (255,255,255,0))
+        pm25_img = Image.new('RGBA', base.size, (255, 255, 255, 0))
         drow_pm25 = ImageDraw.Draw(pm25_img)
     
         date = ''

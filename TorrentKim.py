@@ -2,12 +2,14 @@
 #! /usr/bin/python
 
 #import grequests
+import sys
 import os
 import requests
 import BeautifulSoup
 import telepot
 import urllib2
 import sqlite3
+import linecache
 import hashlib
 import traceback
 
@@ -46,41 +48,63 @@ class TorrentKim(object):
         cursor.close()
         db.close()
         
+    def PrintException(self):
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        log.error('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
             
     
     def SearchTorrentKim(self, keyword, type=1, max_count=10, page_count = 2):
 
         if type < 1 or type > 2:
             log.info('Search Torrent Kim, Unknown Type:%d', type)
-            return False, None
+            return False, None, None
 
-        tor_url = 'https://torrentkim5.net/bbs/s.php?k='
+        try:
+            log.info("Torrent kim Search , keyword=%s", keyword)
+            tor_url = 'https://torrentkim5.net/bbs/s.php?k='
+    
+            urlTest = tor_url + quote(keyword.encode('utf-8'))
 
-        urlTest = tor_url + quote(keyword.encode('utf-8'))
-        
-        opener = urllib2.build_opener()
-        opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11')]
-        data = opener.open(urlTest)
-        
-        sp = BeautifulSoup.BeautifulSoup(data)
-        
-        pageList = self.GetPageLink(sp, page_count)
-        
-        titleList = self.GetTitle(sp)
-        if titleList == None:
-            log.info("%s not found torrent", keyword)
-            return False, None
-        
-        for page in pageList:
-            data = opener.open(page)
+            log.info("url : %s", urlTest)
+            
+            opener = urllib2.build_opener()
+            opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11')]
+            data = opener.open(urlTest)
+            
             sp = BeautifulSoup.BeautifulSoup(data)
-            titleList.update(self.GetTitle(sp, len(titleList)))
-        
-        sortTorList = sorted(titleList.items(), reverse=True)
+            
+            pageList = self.GetPageLink(sp, page_count)
+            
+            titleList = self.GetTitle(sp)
+            if not titleList:
+                log.info("%s not found torrent", keyword)
+                return False, None, None
+            
+            for page in pageList:
+                data = opener.open(page)
+                sp = BeautifulSoup.BeautifulSoup(data)
+                titleList.update(self.GetTitle(sp, len(titleList)))
+            
+            sortTorList = sorted(titleList.items(), reverse=True)
+    
+            inline_keyboard = self.MakeTorrentInlineKeyboard(sortTorList, type, max_count)
+    
+            outTitleList = self.MakeTorrentTitleList(sortTorList, max_count)
+    
+            if outTitleList == None:
+                log.info("Get Title List fail")
+                return False, None, None
 
-        inline_keyboard = self.MakeTorrentInlineKeyboard(sortTorList, type, max_count)
+        except:
+            self.PrintException()
+            return False, None, None
 
-        return True, inline_keyboard
+        return True, inline_keyboard, outTitleList
 
         
 
@@ -102,11 +126,16 @@ class TorrentKim(object):
     
         
         for item in torTRs:
-            Rating = item.find('font').text
+            if item.find('font'):
+                Rating = item.find('font').text
+            else:
+                continue
+
             TargetItem = item.find('a', attrs={'target':'s'})
             if TargetItem == None:
                 continue
             Title = TargetItem.text
+
             torUrl = 'https://torrentkim5.net' + item.find('a', attrs={'target':'s'})['href'][2:]
     
             titleList[torUrl] = list()
@@ -147,6 +176,7 @@ class TorrentKim(object):
             log.info("TorrentKim bbs URL : %s", bbsUrl)
 
             data = opener.open(bbsUrl)
+            
             sp = BeautifulSoup.BeautifulSoup(data)
         
             ATags = sp.findAll('a', {'rel' : 'nofollow'})
@@ -159,15 +189,28 @@ class TorrentKim(object):
 
             log.info("TorrentKim File URL : %s", fileLink)
 
-            torrentName = sp.find('div', {'id': 'writeContents'}).find('legend').text
-        except urllib2.HTTPError, e:
+            writeContent = sp.find('div', {'id': 'writeContents'})
+            if writeContent == None:
+                log.info("GetTorrentFileLink, HTML 'div writeContents' tag not found torrent item")
+                log.info(data)
+                return '', ''
+            
+            legend = writeContent.find('legend')
+            if legend == None:
+                log.info("GetTorrentFileLink, HTML 'legend' tag not found torrent item")
+                log.info(data)
+                return '', ''
+            
+            torrentName = legend.text
+
+        except urllib2.HTTPError as e:
             log.error("GetTorrentFileLink Fail, HTTPError:'%d', Except :'%s'", e.code, e)
             return '', ''
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             log.error("GetTorrentFileLink Fail, URLError:'%s', Except :'%s'", str(e.reason), e)
             return '', ''
-        except httplib.HTTPException, e:
-            log.error("GetTorrentFileLink Fail, HTTP Exception :'%s'", str(e.reason), e)
+        except:
+            log.error("GetTorrentfile Exception : %s", traceback.format_exc())
             return '', ''
     
         return fileLink, torrentName
@@ -225,7 +268,7 @@ class TorrentKim(object):
             cursor.execute(query)
 
             if type == 1:
-                itemText = '[' + item[1][0] + '] ' + item[1][1]
+                itemText = str(idx+1) + '. [' + item[1][0] + '] ' + item[1][1]
             elif type == 2:
                 itemText = 'DOWNLOAD:[' + item[1][0] + '] ' + item[1][1]
                 
@@ -243,6 +286,23 @@ class TorrentKim(object):
         db.close()
     
         return InlineKeyboardMarkup(inline_keyboard=inline_keyboard_list)
+
+
+    def MakeTorrentTitleList(self, torList, max_count=10):
+        outList = ''
+        idx = 0
+
+        for item in torList:
+            if idx >= max_count:
+                break
+            itemText = str(idx+1) +'. [' + item[1][0] + '] ' + item[1][1]
+            outList += itemText
+            outList += '\n'
+
+            idx = idx + 1
+
+        return outList
+
 
 
 

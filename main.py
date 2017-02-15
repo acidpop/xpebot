@@ -76,7 +76,7 @@ def main():
         log.info('Telegram BOT Exit...')
 
         os.kill(os.getpid(), signal.SIGINT)
-    #except Exception, e:
+    #except Exception as e:
     #    log.error(e, exc_info=True)
     except:
         log.error('XPEBot Exeption')
