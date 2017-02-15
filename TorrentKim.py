@@ -189,19 +189,16 @@ class TorrentKim(object):
 
             log.info("TorrentKim File URL : %s", fileLink)
 
-            writeContent = sp.find('div', {'id': 'writeContents'})
-            if writeContent == None:
-                log.info("GetTorrentFileLink, HTML 'div writeContents' tag not found torrent item")
-                log.info(data)
-                return '', ''
-            
-            legend = writeContent.find('legend')
-            if legend == None:
-                log.info("GetTorrentFileLink, HTML 'legend' tag not found torrent item")
-                log.info(data)
-                return '', ''
-            
-            torrentName = legend.text
+            torrentTitleSpan = ATags[1].find('span')
+            if torrentTitleSpan == None:
+                log.info("Torrent Title not found")
+                torStr = fullLink[start:end] + '.torrent'
+            else:
+                tempStr = torrentTitleSpan.text
+                torStr = tempStr[0:tempStr.rfind('.torrent') + 8]
+                log.info("Torrent Title Found : %s", torStr)
+
+            torrentName = torStr
 
         except urllib2.HTTPError as e:
             log.error("GetTorrentFileLink Fail, HTTPError:'%d', Except :'%s'", e.code, e)
@@ -225,6 +222,9 @@ class TorrentKim(object):
 
             #torrentName = "/tmp/" + torrentName
             torrentName = os.path.join(u"/tmp/", torrentName)
+
+            if torrentName[-8:] != '.torrent':
+                torrentName = torrentName + '.torrent'
 
             r = requests.get(torrentUrl, stream=True, headers={'referer': bbsUrl})
     
