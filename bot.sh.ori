@@ -1,5 +1,10 @@
 #! ./bash
 
+# ./bash 는 xpebot 이 설치된 전체 경로로 변경하여 준다.
+# ex) 
+# before : #! ./bash
+# after  : #! /volume1/homes/admin/xpebot/bash
+
 DSM_ACCOUNT="admin"
 PYTHON_PATH="/usr/bin/python"
 XPEBOT_MAIN="/var/services/homes/$DSM_ACCOUNT/xpebot/main.py"

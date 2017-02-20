@@ -12,6 +12,7 @@ import sqlite3
 import linecache
 import hashlib
 import traceback
+import chardet
 
 from LogManager import log
 
@@ -209,6 +210,25 @@ class TorrentKim(object):
         except:
             log.error("GetTorrentfile Exception : %s", traceback.format_exc())
             return '', ''
+
+
+        try:
+            torrentName.decode('ascii')
+        except UnicodeDecodeError:
+            log.info("GetTorrentfile Exception : it was not a ascii-encoded unicode string")
+            start = bbsUrl.rfind('/')+1
+            end = bbsUrl.rfind('.html')
+            torrentName = bbsUrl[start:end]
+        except UnicodeEncodeError:
+            log.info("GetTorrentfile Exception : It may have been an ascii-encoded unicode string")
+            start = bbsUrl.rfind('/')+1
+            end = bbsUrl.rfind('.html')
+            torrentName = bbsUrl[start:end]
+        except:
+            log.info("GetTorrentfile Exception : it is wrong string")
+            start = bbsUrl.rfind('/')+1
+            end = bbsUrl.rfind('.html')
+            torrentName = bbsUrl[start:end]
     
         return fileLink, torrentName
     
@@ -230,7 +250,8 @@ class TorrentKim(object):
     
             #size = float(r.headers['content-length']) / 1024.0
     
-            with open(torrentName.encode('utf-8'), 'wb') as f: 
+            #with open(torrentName.encode('utf-8', 'ignore'), 'wb') as f: 
+            with open(torrentName, 'wb') as f: 
                 chunks = enumerate(r.iter_content(chunk_size=1024)) 
                 for index, chunk in chunks: 
                     if chunk: 
