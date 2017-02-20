@@ -12,7 +12,6 @@ import sqlite3
 import linecache
 import hashlib
 import traceback
-import chardet
 
 from LogManager import log
 
