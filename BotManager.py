@@ -32,6 +32,7 @@ import airkorea
 import namuwiki
 import TorrentKim
 import botCBManager
+import tfreeca
 
 from LogManager import log
 
@@ -54,10 +55,11 @@ class BOTManager(telepot.Bot):
     namuWiki = namuwiki.NamuWiki()
     torKim = TorrentKim.TorrentKim()
     CBMgr = botCBManager.botCBManager()
+    tfreeca = tfreeca.tfreeca()
 
     ds.db_connect()
 
-    dsdown_monitor = ExTimer.ExTimer(3, ds.download_db_timer)
+    dsdown_monitor = ExTimer.ExTimer(10, ds.download_db_timer)
     dsdown_monitor.start()
     
     bot_update_loop = None
@@ -87,12 +89,12 @@ class BOTManager(telepot.Bot):
         log.error('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
 
     def send_help_keyboard(self, chat_id):
-        start_keyboard = {'keyboard': [['/torrentsearch', '/weather', '/systeminfo'], 
+        start_keyboard = {'keyboard': [['/tfreeca', '/torkim', '/gettorrent'],
+                                      ['/torrentsearch', '/weather', '/systeminfo'], 
                                       ['/wol', '/addwol', '/delwol'],
                                       ['/en2ko', '/ko2en', '/shorturl'],
                                       ['/news', '/airkorea', '/namuwiki'],
-                                      ['/torkim', '/gettorrent', '/help', '/cancel']
-                                      ]}
+                                      ['/help', '/cancel']]}
         self.sendMessage(chat_id, u'사용 하실 명령을 선택하세요', reply_markup=start_keyboard)
 
     def current_mode_handler(self, command, chat_id, is_group_chat=False):
@@ -158,6 +160,23 @@ class BOTManager(telepot.Bot):
                 self.sendMessage(chat_id, 'Torrent Kim 다운로드 목록', reply_markup=keyboard)
             else:
                 self.sendMessage(chat_id, 'Torrent Kim 검색 결과가 없습니다')
+        elif self.cur_mode == 'tfreeca':
+            result, keyboard, outList = self.tfreeca.SearchTfreeca(command)
+            self.cur_mode = ''
+            if result == True:
+                self.sendMessage(chat_id, outList)
+                self.sendMessage(chat_id, '티프리카 검색 결과', reply_markup=keyboard)
+            else:
+                self.sendMessage(chat_id, '티프리카 검색 결과가 없습니다')
+        elif self.cur_mode == 'gettfreeca':
+            result, keyboard, outList = self.tfreeca.SearchTfreeca(command, 4)
+            self.cur_mode = ''
+            if result == True:
+                self.sendMessage(chat_id, outList)
+                self.sendMessage(chat_id, '티프리카 다운로드 목록', reply_markup=keyboard)
+            else:
+                self.sendMessage(chat_id, '티프리카 검색 결과가 없습니다')
+
         
     
     # 전송된 메시지를 처리 하는 함수
@@ -253,6 +272,15 @@ class BOTManager(telepot.Bot):
             show_keyboard = {'hide_keyboard': False}
             self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=show_keyboard)
             self.cur_mode = 'gettorrent'
+
+        elif command == '/tfreeca':
+            show_keyboard = {'hide_keyboard': False}
+            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=self.hide_keyboard)
+            self.cur_mode = 'tfreeca'
+        elif command == '/gettfreeca':
+            show_keyboard = {'hide_keyboard': False}
+            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=self.hide_keyboard)
+            self.cur_mode = 'gettfreeca'
 
         elif command == '/help':
             log.info("cmd_handle : Help Mode")

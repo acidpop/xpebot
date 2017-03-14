@@ -32,6 +32,7 @@ import rssManager
 import airkorea
 import namuwiki
 import TorrentKim
+import tfreeca
 
 from LogManager import log
 
@@ -42,6 +43,8 @@ class botCBManager(object):
     watch_dir = main.botConfig.GetTorrentWatchDir()
 
     torKim = TorrentKim.TorrentKim()
+    tfreeca = tfreeca.tfreeca()
+
     """description of class"""
 
     def GetTypeValue(self, unique_id):
@@ -73,7 +76,13 @@ class botCBManager(object):
     def CBParser(self, unique_id, bot, chat_id):
         typeFuncMap = {
                         1:self.TorrentKimUrlDownload,
-                        2:self.TorrentKimGetFile
+                        2:self.TorrentKimGetFile,
+                        3:self.TfreecaUrlDownload,
+                        4:self.TfreecaUrlDownload,
+                        5:self.TfreecaUrlDownload,
+                        6:self.TfreecaGetFile,
+                        7:self.TfreecaGetFile,
+                        8:self.TfreecaGetFile
                     }
 
         type, value = self.GetTypeValue(unique_id)
@@ -87,9 +96,9 @@ class botCBManager(object):
             bot.sendMessage(chat_id, msg)
             return False
         
-        return typeFuncMap.get(type)(value, bot, chat_id)
+        return typeFuncMap.get(type)(type, value, bot, chat_id)
         
-    def TorrentKimUrlDownload(self, value, bot, chat_id):
+    def TorrentKimUrlDownload(self, type, value, bot, chat_id):
 
         bot.sendMessage(chat_id, 'Torrent File 다운로드 시도')
 
@@ -117,7 +126,7 @@ class botCBManager(object):
 
         return True
 
-    def TorrentKimGetFile(self, value, bot, chat_id):
+    def TorrentKimGetFile(self, type, value, bot, chat_id):
 
         bot.sendMessage(chat_id, 'Torrent File 다운로드 시도')
 
@@ -129,6 +138,51 @@ class botCBManager(object):
             return False
 
         log.info("Torrent Kim File Download Success, File Name:'%s'", fileName)
+
+        bot.sendDocument(chat_id, open(fileName.decode('utf-8'), 'rb'))
+
+        return False
+
+    def TfreecaUrlDownload(self, board, value, bot, chat_id):
+        bot.sendMessage(chat_id, 'Torrent File 다운로드 시도')
+
+        print board
+        print value
+        result, fileName = self.tfreeca.GetTorrentFile(board, value)
+
+        if result == False:
+            log.error("url:'%s' Download Fail", value)
+            bot.sendMessage(chat_id, 'Torrent File 다운로드 시도 실패')
+            return False
+
+        log.info("File Move '%s' to '%s'", fileName, self.watch_dir.encode('utf-8'))
+        try:
+            shutil.move(fileName, self.watch_dir.encode('utf-8'))
+            #shutil.copy(fileName, self.watch_dir.encode('utf-8'))
+        except Exception  as e:
+            log.error("File Move Exception, '%s'", e)
+            return False
+
+        try:
+            log.info("File '%s' Download Complete", fileName)
+            msg = "%s 파일을\n'%s'\n경로에 다운로드 하였습니다" % (fileName, self.watch_dir.encode('utf-8'))
+            bot.sendMessage(chat_id, msg)
+        except Exception  as e:
+            log.error("BOT SendMessage Error, '%s'", e)
+
+        return True
+
+    def TfreecaGetFile(self, board, value, bot, chat_id):
+        bot.sendMessage(chat_id, 'Torrent File 다운로드 시도')
+
+        result, fileName = self.tfreeca.GetTorrentFile(board, value)
+
+        if result == False:
+            log.error("url:'%s' Download Fail", value)
+            bot.sendMessage(chat_id, 'Torrent File 다운로드 시도 실패')
+            return False
+
+        log.info("tfreeca File Download Success, File Name:'%s'", fileName)
 
         bot.sendDocument(chat_id, open(fileName.decode('utf-8'), 'rb'))
 
