@@ -266,11 +266,11 @@ class BOTManager(telepot.Bot):
 
         elif command == '/torkim':
             show_keyboard = {'hide_keyboard': False}
-            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=show_keyboard)
+            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=self.hide_keyboard)
             self.cur_mode = 'torkim'
         elif command == '/gettorrent':
             show_keyboard = {'hide_keyboard': False}
-            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=show_keyboard)
+            self.sendMessage(chat_id, '검색 할 Torrent 제목을 입력하세요', reply_markup=self.hide_keyboard)
             self.cur_mode = 'gettorrent'
 
         elif command == '/tfreeca':

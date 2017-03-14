@@ -12,9 +12,11 @@
 
 ### 이번 업데이트 내역
 
-**0.5.12 (2017-02-20)**
+**0.6.0 (2017-03-14)**
 
-/torkim 명령 사용후 토렌트 선택시 일부 특수문자가 포함된 torrent 파일 다운로드가 실패하는 문제 수정
+/tfreeca , /gettfreeca 지원
+
+torrent kim 자료들의 성인광고가 많이 포함 되어 tfreeca 지원
 
 ------
 
@@ -128,20 +130,23 @@
 3. 다음 메시지 보내기
 
     ```
+    tfreeca - Tfreeca 조회
+    torkim - TorrentKim 조회
+    airkorea - 통합대기 지수 조회
     torrentsearch - 토렌트 검색
-    weather - 동네 날씨 또는 전국 날씨 요약 정보 조회
     wol - Wake On Lan 기능
+    weather - 동네 날씨 또는 전국 날씨 요약 정보 조회
     systeminfo - NAS System 리소스 조회
     en2ko - 영어 문장을 한글로 기계 번역
     ko2en - 한글 문장을 영어로 기계 번역
     shorturl - url 을 짧게 줄여주는 기능
     txt2voice - 한글 문장을 음성으로 변환
     news - RSS 뉴스 URL 조회
-    airkorea - 통합대기 지수 조회
     namuwiki - Namu Wiki 조회
-    torkim - TorrentKim 조회
-	gettorrent - TorrentKim 조회 후 토렌트 파일 다운로드
+    gettfreeca - Tfreeca 조회 후 토렌트 파일 다운로드
+    gettorrent - TorrentKim 조회 후 토렌트 파일 다운로드
     help - 도움말
+    cancel - 모드 취소
     ```
 
 4. Bot Father 에게 Success! Command list updated. /help 메시지가 오면성공
@@ -150,7 +155,13 @@
 ------
   
 # 사용 방법
-  
+
+**/tfreeca**
+- tfreeca 토렌트 검색
+
+**/gettfreeca**
+- tfreeca 토렌트 조회 후 Torrent 파일 받기
+
 **/torrentsearch**
 - 토렌트 검색
 
