@@ -61,9 +61,14 @@ class tfreeca(object):
             return False, None, None
 
         try:
+            keyword = keyword.replace(" ", "+")
             torList = self.GetTorrentList(keyword.encode('utf-8'), torType)
 
             sortTorList = sorted(torList.items(), reverse=True)
+
+            if not sortTorList:
+                log.info("Search tfreeca not found, keyword:%s", keyword)
+                return False, None, None
     
             inline_keyboard = self.MakeTorrentInlineKeyboard(sortTorList, torType, max_count)
     
@@ -187,16 +192,11 @@ class tfreeca(object):
     
     def MakeTorrentInlineKeyboard(self, torList, cmdType=3, max_count=10):
         # sqlite ID, Type, Value
-        log.info("1111")
         db = sqlite3.connect(self.db_path)
         cursor = db.cursor()
-        log.info("222")
 
         inline_keyboard_list = list()
         idx = 0
-
-        log.info("3333")
-
     
         #for k, v in torList.iteritems():
         for item in torList:
