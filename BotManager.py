@@ -89,8 +89,7 @@ class BOTManager(telepot.Bot):
         log.error('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
 
     def send_help_keyboard(self, chat_id):
-        start_keyboard = {'keyboard': [['/tfreeca', '/gettfreeca'],
-                                      ['/torkim', '/gettorrent'],
+        start_keyboard = {'keyboard': [['/tfreeca', '/gettfreeca', '/torkim', '/gettorrent'],
                                       ['/torrentsearch', '/weather', '/systeminfo'], 
                                       ['/wol', '/addwol', '/delwol'],
                                       ['/en2ko', '/ko2en', '/shorturl'],
