@@ -12,6 +12,10 @@ class BotHelp(object):
     HelpText = """
     *Acidpop Telegram BOT*
 
+/tfreeca
+    - *tfreeca 토렌트 조회*
+/gettfreeca
+    - *tfreeca 토렌트 조회 후 Torrent 파일 받기*
 /torrentsearch
     - *토렌트 검색(Magnet)*
 /torkim
