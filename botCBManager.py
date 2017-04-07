@@ -106,7 +106,7 @@ class botCBManager(object):
 
         if result == False:
             log.error("url:'%s' Download Fail", value)
-            bot.sendMessage(chat_id, 'Torrent File 다운로드 시도 실패')
+            bot.sendMessage(chat_id, fileName)
             return False
 
         log.info("File Move '%s' to '%s'", fileName, self.watch_dir.encode('utf-8'))
@@ -134,7 +134,7 @@ class botCBManager(object):
 
         if result == False:
             log.error("url:'%s' Download Fail", value)
-            bot.sendMessage(chat_id, 'Torrent File 다운로드 시도 실패')
+            bot.sendMessage(chat_id, fileName)
             return False
 
         log.info("Torrent Kim File Download Success, File Name:'%s'", fileName)

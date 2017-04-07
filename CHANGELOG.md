@@ -1,5 +1,13 @@
 ### 변경 내역
 
+**0.6.1 (2017-04-07)**
+
+/torkim 을 사용시 잘못된 Torrent 파일로 오류 나오는 문제 수정
+
+Torrent Kim Redirect URL 대응
+
+------
+
 **0.6.0 (2017-03-14)**
 
 /tfreeca , /gettfreeca 지원

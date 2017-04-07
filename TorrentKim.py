@@ -66,7 +66,7 @@ class TorrentKim(object):
 
         try:
             log.info("Torrent kim Search , keyword=%s", keyword)
-            tor_url = 'https://torrentkim5.net/bbs/s.php?k='
+            tor_url = 'https://torrentkim10.net/bbs/s.php?k='
     
             urlTest = tor_url + quote(keyword.encode('utf-8'))
 
@@ -136,7 +136,7 @@ class TorrentKim(object):
                 continue
             Title = TargetItem.text
 
-            torUrl = 'https://torrentkim5.net' + item.find('a', attrs={'target':'s'})['href'][2:]
+            torUrl = 'https://torrentkim10.net' + item.find('a', attrs={'target':'s'})['href'][2:]
     
             titleList[torUrl] = list()
             
@@ -149,7 +149,7 @@ class TorrentKim(object):
     
     
     def GetPageLink(self, bs, page_count=2):
-        baseUrl = 'https://torrentkim5.net/bbs/s.php'
+        baseUrl = 'https://torrentkim10.net/bbs/s.php'
         pageDiv = bs.find('div', attrs={'class':'board_page'})
         pageLinks = pageDiv.findAll('a')
 
@@ -170,14 +170,29 @@ class TorrentKim(object):
     
     def GetTorrentFileLink(self, bbsUrl):
         try:
+            """
             opener = urllib2.build_opener()
             opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11')]
             
             log.info("TorrentKim bbs URL : %s", bbsUrl)
 
             data = opener.open(bbsUrl)
-            
+
             sp = BeautifulSoup.BeautifulSoup(data)
+            """
+            header = {'User-agent': 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11'}
+
+            req_data = requests.get(bbsUrl, headers=header)
+
+            if req_data.status_code != 200:
+                log.info("TorrentKim Get Url Page fail")
+                return '', '', ''
+
+            torkimhostidx = req_data.url.find('/', 8)
+            torkimhost = req_data.url[0:torkimhostidx]
+            referUrl = req_data.url
+            
+            sp = BeautifulSoup.BeautifulSoup(req_data.content)
         
             ATags = sp.findAll('a', {'rel' : 'nofollow'})
             fullLink = ATags[1]['href']
@@ -185,7 +200,8 @@ class TorrentKim(object):
             start = fullLink.find("'")+1
             end = fullLink.find("'", start)
     
-            fileLink = 'https://torrentkim5.net' + fullLink[start:end]
+            #fileLink = 'https://torrentkim10.net' + fullLink[start:end]
+            fileLink = torkimhost + fullLink[start:end]
 
             log.info("TorrentKim File URL : %s", fileLink)
 
@@ -202,13 +218,13 @@ class TorrentKim(object):
 
         except urllib2.HTTPError as e:
             log.error("GetTorrentFileLink Fail, HTTPError:'%d', Except :'%s'", e.code, e)
-            return '', ''
+            return '', '', ''
         except urllib2.URLError as e:
             log.error("GetTorrentFileLink Fail, URLError:'%s', Except :'%s'", str(e.reason), e)
-            return '', ''
+            return '', '', ''
         except:
             log.error("GetTorrentfile Exception : %s", traceback.format_exc())
-            return '', ''
+            return '', '', ''
 
 
         try:
@@ -229,15 +245,15 @@ class TorrentKim(object):
             end = bbsUrl.rfind('.html')
             torrentName = bbsUrl[start:end]
     
-        return fileLink, torrentName
+        return fileLink, torrentName, referUrl
     
     
     def GetTorrentFile(self, bbsUrl):
         try:
-            torrentUrl, torrentName = self.GetTorrentFileLink(bbsUrl)
+            torrentUrl, torrentName, referUrl = self.GetTorrentFileLink(bbsUrl)
             if torrentUrl == '' or torrentName == '':
                 log.error("GetTorrentFile| GetTorrentFileLink Fail")
-                return False, ''
+                return False, 'Torrent Link 또는 Torrent 파일 이름이 없음'
 
             #torrentName = "/tmp/" + torrentName
             torrentName = os.path.join(u"/tmp/", torrentName)
@@ -245,7 +261,12 @@ class TorrentKim(object):
             if torrentName[-8:] != '.torrent':
                 torrentName = torrentName + '.torrent'
 
-            r = requests.get(torrentUrl, stream=True, headers={'referer': bbsUrl})
+            r = requests.get(torrentUrl, stream=True, headers={'referer': referUrl})
+
+            contentType = r.headers["content-type"]
+            if contentType.find('text') >= 0:
+                log.error('GetTorrentFile Fail, Response data is text')
+                return False, 'Torrent File 다운로드 실패'
     
             #size = float(r.headers['content-length']) / 1024.0
     
@@ -259,11 +280,11 @@ class TorrentKim(object):
         except requests.exceptions.RequestException as e: 
             log.error('GetTorrentFile Fail, Request Exception : %s', e)
             log.error("GetTorrentfile Exception : %s", traceback.format_exc())
-            return False, ''
+            return False, 'Torrent 파일 다운로드 오류'
         except:
-            log.error("Get Torrent File Fail, url:'%s'", bbsUrl)
+            log.error("Get Torrent File Fail, url:'%s'", referUrl)
             log.error("GetTorrentfile Exception : %s", traceback.format_exc())
-            return False, ''
+            return False, 'Torrent 파일 다운로드 오류'
 
         return True, torrentName.encode('utf-8')
     
