@@ -12,11 +12,9 @@
 
 ### 이번 업데이트 내역
 
-**0.6.1 (2017-04-07)**
+**0.6.2 (2017-07-24)**
 
-/torkim 을 사용시 잘못된 Torrent 파일로 오류 나오는 문제 수정
-
-Torrent Kim Redirect URL 대응
+Torrent Kim 에서 Torrent 파일 다운로드 실패 오류 수정
 
 ------
 

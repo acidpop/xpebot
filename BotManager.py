@@ -161,7 +161,7 @@ class BOTManager(telepot.Bot):
             else:
                 self.sendMessage(chat_id, 'Torrent Kim 검색 결과가 없습니다')
         elif self.cur_mode == 'tfreeca':
-            result, keyboard, outList = self.tfreeca.SearchTfreeca(command)
+            result, keyboard, outList = self.tfreeca.SearchTfreeca(command, 3, 20)
             self.cur_mode = ''
             if result == True:
                 self.sendMessage(chat_id, outList)
@@ -405,6 +405,7 @@ class BOTManager(telepot.Bot):
 
             if content_type is 'document':
                 file_name = unicode(msg['document']['file_name'])
+                #file_name = msg['document']['file_name']
                 file_id = msg['document']['file_id']
                 file_ext = os.path.splitext(file_name)
                 file_type = msg['document']['mime_type']

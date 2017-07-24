@@ -194,8 +194,8 @@ class TorrentKim(object):
             
             sp = BeautifulSoup.BeautifulSoup(req_data.content)
         
-            ATags = sp.findAll('a', {'rel' : 'nofollow'})
-            fullLink = ATags[1]['href']
+            ATags = sp.findAll('a', {'rel' : 'nofollow', 'target' : 'hiddenframe'})
+            fullLink = ATags[0]['href']
 
             start = fullLink.find("'")+1
             end = fullLink.find("'", start)
@@ -205,7 +205,7 @@ class TorrentKim(object):
 
             log.info("TorrentKim File URL : %s", fileLink)
 
-            torrentTitleSpan = ATags[1].find('span')
+            torrentTitleSpan = ATags[0].find('span')
             if torrentTitleSpan == None:
                 log.info("Torrent Title not found")
                 torStr = fullLink[start:end] + '.torrent'
