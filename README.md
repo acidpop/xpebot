@@ -70,21 +70,13 @@ xpebot.cfg 의 NOTY_CHAT_ID 에 ,로 구분하여 알림 받을 대상을 여러
    
     3) python ./get-pip.py
    
-    4) pip install telepot
+    4) pip install telepot BeautifulSoup psycopg2 Pillow psutil
    
-    5) pip install BeautifulSoup
-   
-    6) pip install psycopg2
+    5) cd xpebot
     
-    7) pip install Pillow
+    6) cp bot.sh.ori bot.sh
     
-    8) pip install psutil
-   
-    9) cd xpebot
-    
-    10) cp bot.sh.ori bot.sh
-    
-    11) cp xpebot.cfg.ori xpebot.cfg
+    7) cp xpebot.cfg.ori xpebot.cfg
 
     **bot.sh.ori 파일과 xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 복사 하여 사용**
 
@@ -94,7 +86,7 @@ xpebot.cfg 의 NOTY_CHAT_ID 에 ,로 구분하여 알림 받을 대상을 여러
   
 9. xpebot.cfg 환경 설정 파일을 변경한다.
 
-    1) NOTY_CHAT_ID 는 Downlaod Staion 에서 다운로드 진행 현황 알림을 받을 사용자의 Chat ID 값을 입력한다.
+    1) NOTY_CHAT_ID 는 Downlaod Staion 에서 다운로드 진행 현황 알림을 받을 사용자의 Chat ID 값을 입력한다. 여러명일 경우 ,(콤마)를 이용해 구분한다.
   
     2) DSM_ID 는 자신의 DSM ID 를 입력한다.
   
@@ -110,7 +102,7 @@ xpebot.cfg 의 NOTY_CHAT_ID 에 ,로 구분하여 알림 받을 대상을 여러
 
  
 
-10. xpebot 을 다음 명령어로 실행 한다.
+10. xpebot 을 다음 명령어로 실행 한다. (DSM 6.x 사용자의 경우 root 권한에서 실행)
 
     ```
       시작
@@ -168,8 +160,8 @@ xpebot.cfg 의 NOTY_CHAT_ID 에 ,로 구분하여 알림 받을 대상을 여러
 **/gettfreeca**
 - tfreeca 토렌트 조회 후 Torrent 파일 받기
 
-**/torrentsearch**
-- 토렌트 검색
+~~**/torrentsearch**~~
+- ~~토렌트 검색~~
 
 **/torkim**
 - Torrent Kim 조회
