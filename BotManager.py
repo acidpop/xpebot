@@ -87,6 +87,7 @@ class BOTManager(telepot.Bot):
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, f.f_globals)
         log.error('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
+        log.error('%s', traceback.print_stack())
 
     def send_help_keyboard(self, chat_id):
         start_keyboard = {'keyboard': [['/tfreeca', '/gettfreeca', '/torkim', '/gettorrent'],
@@ -114,7 +115,7 @@ class BOTManager(telepot.Bot):
             self.tor.torrent_download(command, self, chat_id)
             self.cur_mode = ''
         # cur_mode 가 wol 이면 등록된 WOL 디바이스 목록을 보여준다. 등록된게 없다면 WOL 등록 시작
-        elif self.cur_mode == 'addwol':
+        elif self.cur_mode == 'addwol' or self.cur_mode == 'regiwol':
             #AddDevice(self, MAC, DeviceName, BroadCastAddr="192.168.0.1"): 
             self.wol.RegiDevice(command, self, chat_id)
             self.cur_mode = ''
@@ -195,8 +196,9 @@ class BOTManager(telepot.Bot):
 
         if command == '/torrentsearch' or command == u'/토렌트':
             log.info("cmd_handle : Torrent Search")
-            self.cur_mode = 'torrentsearch'
-            self.sendMessage(chat_id, u'검색 할 Torrent 제목을 입력하세요', reply_markup=self.hide_keyboard)
+            #self.cur_mode = 'torrentsearch'
+            #self.sendMessage(chat_id, u'검색 할 Torrent 제목을 입력하세요', reply_markup=self.hide_keyboard)
+            self.sendMessage(chat_id, u'torrentsearch 명령은 더이상 허용하지 않습니다', reply_markup=self.hide_keyboard)
 
         elif command == '/weather' or command == u'/날씨':
             log.info("cmd_handle : Weather")
@@ -329,6 +331,19 @@ class BOTManager(telepot.Bot):
 
     # 전송된 파일을 처리 하는 함수
     def file_handler(self, file_name, file_id, file_ext, file_type, chat_id):
+        try:
+	        file_name = file_name.encode('utf-8')
+        except UnicodeDecodeError:
+            log.info("ReceiveTorrentFile Exception : it was not a ascii-encoded unicode string")
+            file_name = file_id + '.torrent'
+        except UnicodeEncodeError:
+            log.info("ReceiveTorrentFile Exception : It may have been an ascii-encoded unicode string")
+            file_name = file_id + '.torrent'
+        except:
+            log.info("ReceiveTorrentFile Exception : it is wrong string")
+            file_name = file_id + '.torrent'
+
+
         log.info('file_name:%s, id:%s, ext:%s', file_name, file_id, file_ext)
         if file_type == 'application/x-bittorrent':
             self.tor.ReceiveTorrentFile(file_id, file_name, file_ext, file_type, self.bot, chat_id)
@@ -404,12 +419,22 @@ class BOTManager(telepot.Bot):
                 return
 
             if content_type is 'document':
-                file_name = unicode(msg['document']['file_name'])
-                #file_name = msg['document']['file_name']
-                file_id = msg['document']['file_id']
-                file_ext = os.path.splitext(file_name)
-                file_type = msg['document']['mime_type']
-                self.file_handler(file_name, file_id, file_ext[1], file_type, chat_id)
+                try:
+                    file_name = unicode(msg['document']['file_name'])
+                    #file_name = msg['document']['file_name']
+                    file_id = msg['document']['file_id']
+                    file_ext = os.path.splitext(file_name)
+                    file_type = msg['document']['mime_type']
+                    self.file_handler(file_name, file_id, file_ext[1], file_type, chat_id)
+                except UnicodeDecodeError:
+                    #file_name = unicode(msg['document']['file_name'])
+                    #file_name = msg['document']['file_name']
+                    file_id = msg['document']['file_id']
+                    file_ext = os.path.splitext(file_name)
+                    file_name = file_id + "." + file_ext[1]
+                    file_type = msg['document']['mime_type']
+                    self.file_handler(file_name, file_id, file_ext[1], file_type, chat_id)
+
                 return
         except:
             self.PrintException()

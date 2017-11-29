@@ -139,11 +139,23 @@ class TorrentManager(object):
 
         log.info('ReceiveTorrentFile, ds_user:%s, Watch:%s', ds_user, watch_dir.decode('utf-8'))
 
-        bot.download_file(fileid, watch_dir + file_name.encode('utf-8'))
+        try:
+	    filename = filename.encode('utf-8')
+        except UnicodeDecodeError:
+            log.info("ReceiveTorrentFile Exception : it was not a ascii-encoded unicode string")
+            filename = fileid + '.torrent'
+        except UnicodeEncodeError:
+            log.info("ReceiveTorrentFile Exception : It may have been an ascii-encoded unicode string")
+            filename = fileid + '.torrent'
+        except:
+            log.info("ReceiveTorrentFile Exception : it is wrong string")
+            filename = fileid + '.torrent'
+
+        bot.download_file(fileid, watch_dir + file_name)
 
         log.debug('downoad success')
         
-        log.info('%s download success', filename)
+        log.info('[%s] download success', filename)
 
         hide_keyboard = {'hide_keyboard': True}
         #msg = file_name.decode('utf-8') + ' 파일을 ' + watch_dir.decode('utf-8') + ' 경로에 다운로드 하였습니다';

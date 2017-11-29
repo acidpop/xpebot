@@ -5,6 +5,9 @@ import CommonUtil
 import telepot
 import traceback
 import re
+import sys
+import linecache
+import telepot
 
 from LogManager import log
 
@@ -19,13 +22,46 @@ class dsdownload(object):
 
     TOKEN = main.botConfig.GetBotToken()
     dsm_id = main.botConfig.GetDsmId()
-    chat_id = main.botConfig.GetChatId()
+    notify_id_list = main.botConfig.GetNotifyList()
 
     conn = None
     curs = None
 
     bot = telepot.Bot(TOKEN)
+
+    def PrintException(self):
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
+        log.error('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
+        log.error('%s', traceback.print_stack())
+
+    def tgSendMessage(self, chat_id, data, parseMode, retry=5):
+        for i in range(0, retry):
+            try:
+                log.info("Bot send[%d/%d] - to:'%s' \nmsg:\n'%s'\n", i+1, retry, str(chat_id), data)
+                self.bot.sendMessage(chat_id, data, parse_mode = parseMode)
+                break
+            except telepot.exception:
+                log.info('Telepot Exception')
+                self.PrintException()
+                break
+            except telepot.exception.BadHTTPResponse:
+                log.info('Telepot Bad HTTP Response, retry[' + str(i+1) + '/' + str(retry) + ']')
+                self.PrintException()
+                continue
+            except:
+                log.info('Telepot Unknown Exception')
+                self.PrintException()
+                break
     
+    def SendChatToNotifyList(self, msg, parseMode):
+        for chat_id in self.notify_id_list:
+            #self.bot.sendMessage(chat_id, msg, parse_mode = parseMode)
+            self.tgSendMessage(chat_id, msg, parseMode)
 
     def db_connect(self, host='localhost', dbname='download', user='postgres', password=''):
         #global curs
@@ -336,7 +372,8 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                 if rowitem[0] == 0:
                     log.info('monitor table is not exist.. try create table')
                     self.CreateMonitorTable()
-                    self.bot.sendMessage(self.chat_id, 'DS Download Monitor Table 등록')
+                    #self.bot.sendMessage(self.chat_id, 'DS Download Monitor Table 등록')
+                    self.SendChatToNotifyList('DS Download Monitor Table 등록')
 
                 # Check Procedure Exist
                 self.curs.execute(proc_query)
@@ -344,7 +381,8 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                 if rowitem[0] == 0:
                     log.info('monitor procedure is not exist.. try create procedure')
                     self.CreateMonitorProcedure()
-                    self.bot.sendMessage(self.chat_id, 'DS Download Monitor Procedure 등록')
+                    #self.bot.sendMessage(self.chat_id, 'DS Download Monitor Procedure 등록')
+                    self.SendChatToNotifyList('DS Download Monitor Procedure 등록')
 
                 # Check Trigger Exist
                 self.curs.execute(trigger_query)
@@ -352,7 +390,8 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                 if rowitem[0] == 0:
                     log.info('monitor trigger is not exist... try create trigger')
                     self.CreateMonitorTrigger()
-                    self.bot.sendMessage(self.chat_id, 'DS Download Monitor Trigger 등록')
+                    #self.bot.sendMessage(self.chat_id, 'DS Download Monitor Trigger 등록')
+                    self.SendChatToNotifyList('DS Download Monitor Trigger 등록')
 
             except psycopg2.IntegrityError as err:
                 if err.pgcode != '23505':
@@ -386,6 +425,8 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
         #print 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
         log.info('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
 
+    def decode(s, encoding="ascii", errors="ignore"):
+        return s.decode(encoding=encoding, errors=errors)
 
 
     def download_db_timer(self):
@@ -414,9 +455,10 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                         # tor_name = tor_name.replace('_', '\_')
                         # Markdown 문법에서 *는 MarkDown 문법을 시작하는 문자이므로 \* 로 변경
                         # tor_name = tor_name.replace('*', '\*')
+                        tor_name = tor_name.replace('`', '\'')
 
                         # Telegram Bot MarkDown 문법 중 *, _, [ 문자는 앞에 역슬래시를 붙여준다'
-                        tor_name = re.sub(r"([*_'\[])", r"\\\1", tor_name)
+                        tor_name = re.sub(r"([*_\[])", r"\\\1", tor_name)
 
                         # DELETE FROM btdownload_event WHERE task_id = OLD.task_id;
                         if status_no == 999:
@@ -426,9 +468,12 @@ FOR EACH ROW EXECUTE PROCEDURE process_btdownload_event();"""
                             query = "UPDATE btdownload_event SET isread = 1 WHERE task_id = %d" % (task_id)
                             msg = '*상태* : %s\n*이름* : %s\n*크기* : %s\n*사용자* : %s' % (status, tor_name, total_size, username)
 
-                        log.info('Bot send : %s', msg)
+                        #log.info('Bot send : %s', msg.decode('utf-8'))
                         
-                        self.bot.sendMessage(self.chat_id, msg.decode('utf-8'), parse_mode='Markdown')
+                        #self.bot.sendMessage(self.chat_id, msg.decode('utf-8'), parse_mode='Markdown')
+                        self.SendChatToNotifyList(msg.decode('utf-8'), 'Markdown')
+                        
+                        #self.bot.sendMessage(self.chat_id, self.decode(msg, encoding='utf-8'), parse_mode='Markdown')
 
                         log.info("DB Query : %s", query)
                         self.curs.execute(query)

@@ -1,5 +1,5 @@
 [TELEGRAM]
-# Download Station 에서 작업 완료시 알림 메시지를 받을 사용자의 Chat ID
+# Download Station 에서 작업 완료시 알림 메시지를 받을 사용자의 Chat ID 목록(, 로 구분하여 여러명 등록, EX: NOTY_CHAT_ID = 12345, 98765)
 NOTY_CHAT_ID	= 12345678
 # Telegrem BOT을 이용하려는 DSM 사용자 ID
 DSM_ID			= admin

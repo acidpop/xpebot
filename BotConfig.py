@@ -11,7 +11,7 @@ class BotConfig(object):
     #config_file_path = './xpebot.cfg'
     #config_file_path = self.configPath
 
-    notify_chat_id = 0
+    notify_chat_id_list = None
     dsm_id = ""
     bot_token = ""
     valid_user_list = None
@@ -48,6 +48,11 @@ class BotConfig(object):
         config.read(config_file_path)
 
         self.notify_chat_id = config.get('TELEGRAM', 'NOTY_CHAT_ID')
+        temp_notify_list = config.get('TELEGRAM', 'NOTY_CHAT_ID')
+        if temp_notify_list.find(',') == -1:
+            temp_notify_list += ', '
+        self.notify_chat_id_list = eval(temp_notify_list)
+
         self.dsm_id = config.get('TELEGRAM', 'DSM_ID')
         self.bot_token = config.get('TELEGRAM', 'BOT_TOKEN')
         temp_valid_user = str(config.get('TELEGRAM', 'VALID_USER'))
@@ -79,8 +84,8 @@ class BotConfig(object):
 
         self.host_name = socket.gethostname()
 
-    def GetChatId(self):
-        return self.notify_chat_id
+    def GetNotifyList(self):
+        return self.notify_chat_id_list
 
     def GetDsmId(self):
         return self.dsm_id
