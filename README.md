@@ -1,4 +1,15 @@
+**DSM 6.2.2-24922 릴리즈에서 xpebot 이 작동 되지 않는 문제가 확인 되었습니다.**
+
+ - telepot 프로젝트가 중단 되어 xpebot 프로젝트도 중단 합니다.
+ - synobot 프로젝트로 새롭게 시작합니다. [synobot 링크](https://hub.docker.com/r/acidpop/synobot/)
+
+
+------
+
 **bot.sh.ori, xpebot.cfg.ori 파일은 필히 bot.sh, xpebot.cfg 로 '복사' 하셔서 사용하세요 안그러면 소스 업데이트가 안됩니다.**
+
+
+
 
 ------
 
